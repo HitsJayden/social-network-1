@@ -1,0 +1,477 @@
+require('dotenv').config();
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
+
+const User = require('../models/user');
+const { transport } = require('../mail/mail');
+const Post = require('../models/post');
+
+exports.signup = async (req, res) => {
+    try {
+        // getting user inputs
+        const email = req.body.email;
+        const password = req.body.password;
+        const confirmPassword = req.body.confirmPassword;
+        const name = req.body.name;
+        const surname = req.body.surname;
+        const nickname = req.body.nickname;
+
+        const emailRegex = /^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i;
+
+        if(!email.match(emailRegex)) {
+            return res.status(422).json({ message: 'Invalid Email' });
+        };
+
+        // checking if an user already signed up with this email
+        const userExists = await User.findOne({ email });
+
+        if(userExists) {
+            return res.status(409).json({ message: 'User ' + email + ' Already Exists' });
+        };
+
+        // name cannot be empty
+        if(name.length === 0) {
+            return res.status(422).json({ message: 'Please Enter Your Name' });
+        };
+
+        // surname cannot be empty
+        if(surname.length === 0) {
+            return res.status(422).json({ message: 'Please Enter Your Surname' });
+        };
+
+        // password >= 5
+        if(password.length < 5) {
+            return res.status(422).json({ message: 'Password Needs To Be At Least 5 Characters' });
+        };
+
+        if(password !== confirmPassword) {
+            return res.status(403).json({ message: 'Passwords Do Not Match' });
+        };
+
+        // hashing password
+        const hashedPassword = await bcrypt.hash(password, 12);
+
+        // creating a token so that we can send it by email to the user and verify the email
+        const tokenVerifyEmail = crypto.randomBytes(32).toString('hex');
+
+        // hashing the token and setting expire date of 1 hour, if the user doesn't verify the email within 1 hour account will be deleted
+        const hashedTokenVerifyEmail = await bcrypt.hash(tokenVerifyEmail, 12);
+        const tokenVerifyEmailExpires = Date.now() + 3600000;
+
+        // creating user
+        const user = new User({
+            name,
+            surname,
+            nickname,
+            email,
+            password: hashedPassword,
+            tokenVerifyEmail: hashedTokenVerifyEmail,
+            tokenVerifyEmailExpires,
+        });
+
+        // saving user into db
+        const savedUser = await user.save();
+
+        // encoding the token so that we can send it into the url
+        const encodedToken = encodeURIComponent(tokenVerifyEmail);
+
+        const userId = savedUser._id;
+        const link = process.env.URL + '/auth/verify-account/' + encodedToken + '/' + userId;
+
+        await transport.sendMail({
+            from: process.env.USER_MAIL,
+            to: savedUser.email,
+            subject: 'Please Verify Your Account',
+
+            html:
+            `
+                <h1>Hi ${savedUser.name},</h1>
+                <br>
+                <p>Please Click On The Link Below In Order To Verify Your Account</p>
+                <br>
+                <a href="${link}">Click Here To Verify Your Account</a>
+            `,
+        });
+
+        return res.status(201).json({ message: 'User Created, Please Verify Your Account By Checking Your Email Within 1 Hour' });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.verifySignup = async (req, res, next) => {
+    try {
+        // getting data from URL
+        const tokenVerifyEmail = decodeURIComponent(req.params.tokenVerifyEmail);
+        const userId = req.params.userId;
+
+        // finding the user so that we can verify token and password
+        const user = await User.findById(userId);
+
+        if(!user) {
+            return res.status(404).json({ message: 'Sorry, The Account Was Deleted' });
+        };
+
+        const tokenIsValid = await bcrypt.compare(tokenVerifyEmail, user.tokenVerifyEmail);
+
+        // verifing the token, if it is not valid account will be removed so that the user can signup again
+        if(!tokenIsValid || Date.now() > user.tokenVerifyEmailExpires) {
+            await User.findByIdAndRemove(userId);
+            return res.status(401).json({ message: 'Sorry, Something Went Wrong. Please Signup Again, You Are Being Redirected To The Sign Up Page' });
+        };
+
+        // verifying password
+        const password = req.body.password;
+        const passwordIsValid = await bcrypt.compare(password, user.password);
+
+        if(!passwordIsValid) {
+            return res.status(401).json({ message: 'Passwords Do Not Match' });
+        };
+
+        // deleting these data from db so that we can delete all the users that have these data for more than 1 hour (background job)
+        user.tokenVerifyEmail = undefined;
+        user.tokenVerifyEmailExpires = undefined;
+
+        await user.save();
+        return res.status(200).json({ message: 'Thank You For Verifying Your Account, You Are Being Redirected To The Login Page' });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.login = async (req, res, next) => {
+    try {
+        // getting inputs of the user
+        const email = req.body.email;
+        const password = req.body.password;
+
+        // finding the user with the email provided
+        const user = await User.findOne({ email });
+
+        if(!user) {
+            return res.status(404).json({ message: 'There Is No Account In Our Database With The Following Email: ' + email });
+        };
+
+        // checking if password matches the one that we have in the db
+        const isValid = await bcrypt.compare(password, user.password);
+
+        if(!isValid) {
+            return res.status(401).json({ message: 'Invalid Password, Please Try Again Or Request A Reset Password' });
+        };
+
+        // if user did not verify the email he can't login
+        if(user.tokenVerifyEmail) {
+            return res.status(401).json({ message: 'Please Verify Your Account By Checking Your Email' });
+        };
+
+        const userId = user._id.toString();
+
+        // signing a token
+        const token = jwt.sign({
+            email,
+            userId,
+        }, process.env.TOKEN_SECRET, { expiresIn: '24h' });
+
+        // for navigation on the client side I use a cookie httpOnly false
+        const weakToken = jwt.sign({ userId }, process.env.WEAK_TOKEN_SECRET, { expiresIn: '24h' });
+
+        // if inputs are correct we authenticate the user by storing a session and storing tokens into cookies
+        await User.findById(userId)
+            .then(() => {
+                // authenticating the user and storing his information into the session
+                req.session.isAuth = true;
+                req.session.user = user;
+
+                // tokens into cookies and saving the session
+                res.cookie('token', token, { maxAge: 3600000 * 24, httpOnly: true, path: '/' });
+                res.cookie('authCookie', weakToken, { maxAge: 3600000 * 24, httpOnly: false, path: '/' });
+                req.session.save(err => console.log(err));
+            })
+            .catch(err => console.log(err));
+
+        return res.status(200).json({ message: 'Successful Login, You Are Being Redirected To The Home' });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        }
+    }
+};
+
+exports.logout = async (req, res, next) => {
+    try {
+        // deleting session
+        req.session.destroy();
+
+        // deleting tokens into cookies
+        res.status(200).clearCookie('connect.sid');
+        res.status(200).clearCookie('authCookie');
+        res.status(200).clearCookie('token');
+
+        return res.status(200).json();
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.makePost = async (req, res, next) => {
+    try {
+        // checking if the user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'You Cannot Take This Action, Please Log In' })
+        };
+
+        const token = req.cookies.token;
+        jwt.verify(token, process.env.TOKEN_SECRET);
+
+        const weakToken = req.cookies.authCookie;
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+
+        //creating the post
+        const content = req.body.content;
+
+        if(content.length === 0) {
+            return res.status(422).json({ message: 'Post Cannot Be Empty' });
+        };
+
+        const post = new Post({ content, userId, likes: {likes: 0 } });
+        await post.save();
+
+        // pushing post into user
+        user.posts.push({
+            content,
+            postId: post._id,
+        });
+        await user.save();
+
+        return res.status(201).json({ message: 'Post Created' });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.homePage = async (req, res, next) => {
+    try {
+        // sending in res all the posts that we have so that we can fetch it on the client side
+        const posts = await Post.find();
+        return res.status(200).json({ message: 'Posts Fetched', posts });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.like = async (req, res, next) => {
+    try {
+        // checking if the user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'You Need To Log In' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        const userId = req.session.user._id;
+
+        const postId = req.params.postId;
+        const post = await Post.findById(postId);
+
+        const likesUsersPosts = post.likes.users.userId;
+
+        // we first find the index of the user id
+        const userIndex = likesUsersPosts.findIndex(i => {
+            return i.toString() === userId.toString();
+        });
+
+        // so if the index of the user id is >= 0 (that means it exists) we remove the like otherwise we put the like
+        if(userIndex >= 0) {
+            let updatedUsersIds = post.likes.users.userId.filter(user => {
+                return user.toString() !== userId.toString();
+            });
+
+            post.likes.likes = post.likes.likes -1;
+            post.likes.users.userId = updatedUsersIds;
+
+        } else {
+            post.likes = {
+                likes: post.likes.likes +1,
+                users: {
+                    userId,
+                },
+            };
+        };
+        await post.save();
+        return res.status(200).json();
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.comments = async (req, res, next) => {
+    try {
+        // checking if user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        // getting the input of the user (comment)
+        const content = req.body.content;
+
+        // comment cannot be empty
+        if(content.length === 0) {
+            return res.status(422).json({ message: 'Comment Cannot Be Empty' });
+        };
+
+        // finding the post
+        const postId = req.params.postId;
+        const post = await Post.findById(postId);
+
+        // assigning user id to the comment
+        const userId = req.session.user._id;
+
+        // pushing into post comment
+        post.comments.push({ content, userId });
+        
+        // if there is no comment we need to assign 0 as value otherwise validation will fail
+        if(post.totalComments === undefined) {
+            post.totalComments = 0;
+        };
+
+        // adding 1 to total comments in order to count all the comments for this post
+        post.totalComments +=  1;
+        await post.save();
+
+        return res.status(201).json({ message: 'Post Was Commented' });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.loadComments = async (req, res, next) => {
+    try {
+        // checking if user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        // finding posts and sending in res comments and total comments of this post
+        const postId = req.params.postId;
+        const post = await Post.findById(postId);
+        const comments = post.comments;
+        const totalComments = post.totalComments;
+        return res.status(200).json({ message: 'Comments Fetched', comments, totalComments });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.removeComment = async (req, res, next) => {
+    try {
+        // checking if user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        // finding post
+        const postId = req.params.postId;
+        const post = await Post.findById(postId);
+
+        // getting userId and commentId so that we can compare them in the next lines
+        const userId = req.session.user._id;
+        const commentId = req.params.commentId;
+
+        post.comments.map(async comment => { 
+            // if commentIds and userIds match we can delete the comment
+            if(commentId.toString() === comment._id.toString() && userId.toString() === comment.userId.toString()) { 
+                const comments = post.comments;
+
+                // getting all the comments apart of the one that we want to delete
+                const updatedComments = comments.filter(comment => { 
+                    return comment._id.toString() !== commentId.toString();
+                });
+
+                // updating the comments with the ones that we want to remain, decreasing totalComments and saving
+                post.comments = updatedComments;
+                post.totalComments -= 1;
+                await post.save();
+                return res.status(200).json({ message: 'Comment Deleted' });
+            } else {
+                // if the user is not the owner of the comment we show an error message
+                return res.status(401).json({ message: 'You Cannot Take This Action' });
+            };
+        });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
