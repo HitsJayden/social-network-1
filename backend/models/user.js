@@ -7,6 +7,11 @@ const userSchema = new Schema({
         required: true,
     },
 
+    profileImage: {
+        type: String,
+        required: false,
+    },
+
     surname: {
         type: String,
         required: true,

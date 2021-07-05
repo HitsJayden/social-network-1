@@ -41,12 +41,18 @@ class HomePage extends Component {
 
         this.setState({ loading: false, posts: resData.posts.map(post => {
             return(
-                <>
-                <h1>{post.content}</h1>
-                <Like postId={post._id} />
-                <p>{post.likes.likes} {post.likes.likes === 1 ? 'person' : 'people'} like this post</p>
-                <Comment postId={post._id} />
-                </>
+                <div key={post._id}>
+                    <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
+
+                    <figure>
+                        <img src={post.image} alt={post.content} />
+                    </figure>
+                    
+                    <p>{post.content}</p>
+                    <Like postId={post._id} />
+                    <p>{post.likes.likes} {post.likes.likes === 1 ? 'person' : 'people'} like this post</p>
+                    <Comment postId={post._id} />
+                </div>
             )
         }) });
     };

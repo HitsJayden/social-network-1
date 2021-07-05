@@ -26,9 +26,10 @@ class Comment extends Component {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
+            credentials: 'include',
         });
 
-        const resData = await res.json();
+        const resData = await res.json(); 
 
         if(resData.err) {
             console.log(err);
@@ -36,10 +37,10 @@ class Comment extends Component {
 
         this.setState({ totalComments: resData.totalComments, comments: resData.comments.map(comment => {
             return (
-                <>
-                <p key={comment._id}>{comment.content}</p>
-                <DeleteComment postId={this.props.postId} commentId={comment._id} />
-                </>
+                <div key={comment._id}>
+                    <p key={comment._id}>{comment.content}</p>
+                    <DeleteComment postId={this.props.postId} commentId={comment._id} />
+                </div>
             );
         }) })
     }

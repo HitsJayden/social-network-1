@@ -17,4 +17,9 @@ router.put('/comment/:postId', authController.comments);
 router.get('/load-comments/:postId', authController.loadComments);
 router.delete('/delete-comment/:commentId/:postId', authController.removeComment);
 
+router.get('/my-profile', authController.myProfilePage);
+router.get('/load-profile/:userId', authController.profilePage);
+router.get('/current-profile-image', authController.currentProfileImage);
+router.patch('/load-profile-image', authController.updateProfileImage);
+
 module.exports = router;

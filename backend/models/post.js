@@ -7,6 +7,11 @@ const postSchema = new Schema({
         required: true,
     },
 
+    image: {
+        type: String,
+        required: false,
+    },
+
     likes: {
         likes: {
             type: Number,

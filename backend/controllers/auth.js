@@ -248,14 +248,16 @@ exports.makePost = async (req, res, next) => {
         const userId = req.session.user._id;
         const user = await User.findById(userId);
 
-        //creating the post
+        // getting inputs
         const content = req.body.content;
+        const image = req.body.image;
 
         if(content.length === 0) {
             return res.status(422).json({ message: 'Post Cannot Be Empty' });
         };
 
-        const post = new Post({ content, userId, likes: {likes: 0 } });
+        // creating the post
+        const post = new Post({ content, userId, likes: {likes: 0 }, image });
         await post.save();
 
         // pushing post into user
@@ -413,7 +415,11 @@ exports.loadComments = async (req, res, next) => {
         const postId = req.params.postId;
         const post = await Post.findById(postId);
         const comments = post.comments;
-        const totalComments = post.totalComments;
+        let totalComments = post.totalComments;
+
+        if(totalComments === undefined) {
+            totalComments = 0;
+        };
         return res.status(200).json({ message: 'Comments Fetched', comments, totalComments });
 
     } catch (err) {
@@ -466,6 +472,99 @@ exports.removeComment = async (req, res, next) => {
                 return res.status(401).json({ message: 'You Cannot Take This Action' });
             };
         });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.profilePage = async (req, res, next) => {
+    try {
+        // getting the user id from params so that we can find all the posts of this user
+        const userId = req.params.userId;
+        const user = await User.findById(userId);
+
+        // we will send these data so that in the profile page we can fetch all the posts and profile image of this user on the client side
+        const userPosts = await Post.find({ userId });
+        const profileImage = user.profileImage;
+        return res.status(200).json({ message: 'Posts Fetched', userPosts, profileImage });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.myProfilePage = async (req, res, next) => {
+    try {
+        // checking if the user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+        const userPosts = await Post.find({ userId });
+        const profileImage = user.profileImage;
+        return res.status(200).json({ message: 'Data Fetched', profileImage, userPosts });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.currentProfileImage = async (req, res, next) => {
+    try {
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+        return res.status(200).json({ currentProfileImage: user.profileImage })
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.updateProfileImage = async (req, res, next) => {
+    try {
+        // checking if user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+
+        const profileImage = req.body.changeImage;
+        user.profileImage = profileImage;
+        await user.save();
+        return res.status(201).json({ message: 'Profile Image Updated' });
 
     } catch (err) {
         console.log(err);
