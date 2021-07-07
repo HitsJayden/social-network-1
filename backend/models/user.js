@@ -52,12 +52,27 @@ const userSchema = new Schema({
         required: false,
     },
 
-    posts: [
-        {
+    posts: [{
             content: { type: String, required: true },
             postId: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
-        }
-    ]
+        }],
+
+    friends: [{
+        userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    }],
+
+    friendRequestSent: [{
+        userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    }],
+
+    friendRequestReceived: [{
+        userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
+    }],
+
+    notifications: [{
+        message: { type: String, required: false },
+        date: { type: Date, required: false },
+    }],
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

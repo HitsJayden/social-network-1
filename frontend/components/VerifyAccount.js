@@ -40,7 +40,7 @@ class VerifyAccount extends Component {
         this.setState({ message: resData.message, loading: false });
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         }
 
         if(this.state.message === 'Sorry, The Account Was Deleted' || 

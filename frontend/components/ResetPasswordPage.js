@@ -39,7 +39,7 @@ class RequestPasswordPage extends Component {
         const resData = await res.json();
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
         this.setState({ loading: false, message: resData.message });

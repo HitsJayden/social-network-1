@@ -47,7 +47,7 @@ class Login extends Component {
         this.setState({ message: resData.message, loading: false });
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
         // we only want to show the user one of these messages

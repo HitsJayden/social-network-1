@@ -36,7 +36,7 @@ class HomePage extends Component {
         const resData = await res.json();
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
         this.setState({ loading: false, posts: resData.posts.map(post => {

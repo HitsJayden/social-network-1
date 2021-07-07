@@ -29,7 +29,7 @@ class UpdateProfileImage extends Component {
         this.setState({ profileImage: resData.secure_url, loading: false });
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
     };
 
@@ -52,7 +52,7 @@ class UpdateProfileImage extends Component {
         const resData = await res.json();
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
         this.setState({ message: resData.message, loading: false, });

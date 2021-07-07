@@ -12,10 +12,36 @@ class ProfilePage extends Component {
             loading: false,
             posts: [],
             profileImage: '',
+            name: '',
+            surname: '',
+            nickname: '',
+            message: null,
         };
 
         this.fetchData = this.fetchData.bind(this);
     }
+
+    sendFriendRequest = async () => {
+        const userId = this.props.userId;
+
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/send-friend-request/${userId}`, {
+            method: 'PUT',
+
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            credentials: 'include'
+        });
+        const resData = await res.json();
+
+        if(resData.err) {
+            console.log(resData.err);
+        };
+
+        this.setState({ message: resData.message });
+        localStorage.setItem('blue', 'true')
+    };
 
     fetchData = async () => {
         this.setState({ loading: true })
@@ -28,16 +54,16 @@ class ProfilePage extends Component {
                 'Content-Type': 'application/json',
                 'Accept': 'application/json',
             },
-            credentials: 'include',
         });
 
-        const resData = await res.json();
+        const resData = await res.json(); 
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
-        this.setState({ loading: false, profileImage: resData.profileImage, posts: resData.userPosts.map(post => {
+        this.setState({ name: resData.name, surname: resData.surname, nickname: resData.nickname,
+             loading: false, profileImage: resData.profileImage, posts: resData.userPosts.map(post => {
             return (
                 <div>
                     <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
@@ -71,6 +97,12 @@ class ProfilePage extends Component {
                 <figure>
                     <img src={this.state.profileImage} />
                 </figure>
+
+                {this.state.message && <h1>{this.state.message}</h1>}
+
+                <h1>{this.state.name} {this.state.surname} {this.state.nickname === '' ? '' : '(' + this.state.nickname + ')'}</h1>
+
+                <button onClick={this.sendFriendRequest}>Send Friend Request</button>
 
                 {this.state.posts}
                 </>

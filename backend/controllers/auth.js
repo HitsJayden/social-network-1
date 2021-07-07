@@ -6,6 +6,7 @@ const crypto = require('crypto');
 const User = require('../models/user');
 const { transport } = require('../mail/mail');
 const Post = require('../models/post');
+const user = require('../models/user');
 
 exports.signup = async (req, res) => {
     try {
@@ -307,6 +308,7 @@ exports.like = async (req, res, next) => {
         jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
 
         const userId = req.session.user._id;
+        const user = await User.findById(userId);
 
         const postId = req.params.postId;
         const post = await Post.findById(postId);
@@ -328,6 +330,19 @@ exports.like = async (req, res, next) => {
             post.likes.users.userId = updatedUsersIds;
 
         } else {
+            // logic for sending notification to the user (we also put a date o 1 week so that we will remove all the olds notifications with a background job)
+            const userPostId = post.userId;
+            const userPost = await User.findById(userPostId);
+            
+            // if the user that likes the post is the same of the one that created the post we won't send a notification
+            if(userPostId.toString() !== userId.toString()) {
+                userPost.notifications.push({
+                    message: user.name + ' Liked Your Post ' + post.content.slice(0, 8),
+                    date: Date.now() + 60 * 30, // remember to change it!!!
+                });
+                await userPost.save();
+            };
+
             post.likes = {
                 likes: post.likes.likes +1,
                 users: {
@@ -386,6 +401,25 @@ exports.comments = async (req, res, next) => {
         // adding 1 to total comments in order to count all the comments for this post
         post.totalComments +=  1;
         await post.save();
+
+        // finding the user that created the post so that we can send him a notification
+        const userIdPost = post.userId;
+        const userPost = await User.findById(userIdPost);
+
+        // finding the user that wrote the comment so that we can say who wrote the comment
+        const userCommentedId = post.comments.map(comment => {
+            return comment.userId
+        });
+        const userCommented = await User.findById(userCommentedId);
+        
+        // if the user that comments is the same user that created the post we won't send a notification
+        if(post.userId.toString() !== userCommentedId.toString()) {
+            userPost.notifications.push({
+                message: userCommented.name + ' Commented Your Post ' + post.content.slice(0, 8),
+                date: Date.now() + 10, // remember to change it!!!
+            });
+            await userPost.save();
+        };
 
         return res.status(201).json({ message: 'Post Was Commented' });
 
@@ -482,6 +516,7 @@ exports.removeComment = async (req, res, next) => {
     };
 };
 
+// profile page that you see as a friend of that user
 exports.profilePage = async (req, res, next) => {
     try {
         // getting the user id from params so that we can find all the posts of this user
@@ -491,7 +526,10 @@ exports.profilePage = async (req, res, next) => {
         // we will send these data so that in the profile page we can fetch all the posts and profile image of this user on the client side
         const userPosts = await Post.find({ userId });
         const profileImage = user.profileImage;
-        return res.status(200).json({ message: 'Posts Fetched', userPosts, profileImage });
+        const name = user.name;
+        const surname = user.surname;
+        const nickname = user.nickname;
+        return res.status(200).json({ message: 'Posts Fetched', userPosts, profileImage, name, surname, nickname });
 
     } catch (err) {
         console.log(err);
@@ -502,6 +540,7 @@ exports.profilePage = async (req, res, next) => {
     };
 };
 
+// profile page that you see as an "owner"
 exports.myProfilePage = async (req, res, next) => {
     try {
         // checking if the user is logged in
@@ -515,26 +554,15 @@ exports.myProfilePage = async (req, res, next) => {
         jwt.verify(token, process.env.TOKEN_SECRET);
         jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
 
+        // getting the data that we will show on the client side 
         const userId = req.session.user._id;
         const user = await User.findById(userId);
         const userPosts = await Post.find({ userId });
         const profileImage = user.profileImage;
-        return res.status(200).json({ message: 'Data Fetched', profileImage, userPosts });
-
-    } catch (err) {
-        console.log(err);
-
-        if(!err.statusCode) {
-            err.statusCode = 500;
-        };
-    };
-};
-
-exports.currentProfileImage = async (req, res, next) => {
-    try {
-        const userId = req.session.user._id;
-        const user = await User.findById(userId);
-        return res.status(200).json({ currentProfileImage: user.profileImage })
+        const name = user.name;
+        const surname = user.surname;
+        const nickname = user.nickname;
+        return res.status(200).json({ message: 'Data Fetched', profileImage, userPosts, name, surname, nickname });
 
     } catch (err) {
         console.log(err);
@@ -558,13 +586,70 @@ exports.updateProfileImage = async (req, res, next) => {
         jwt.verify(token, process.env.TOKEN_SECRET);
         jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
 
+        // finding the user
         const userId = req.session.user._id;
         const user = await User.findById(userId);
 
+        // saving new profile image
         const profileImage = req.body.changeImage;
         user.profileImage = profileImage;
         await user.save();
         return res.status(201).json({ message: 'Profile Image Updated' });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.sendFriendRequest = async (req, res, next) => {
+    try {
+        // checking if user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        // so here we find the user that is sending the request from the session
+        // the user that is receiving the request from the params
+        const userIdSession = req.session.user._id;
+        const userSession = await User.findById(userIdSession);
+        const userIdParams = req.params.userId;
+        const userParams = await User.findById(userIdParams);
+
+        // mapping user session friend requests so that we can see if the user already sent a friend request and, if so, we tell him that
+        const friendRequestSent = userSession.friendRequestSent;
+        let alreadySent;
+
+        friendRequestSent.map(user => { 
+            if(user.userId.toString() === userIdParams.toString()) {
+                return alreadySent = true;
+            };
+            return alreadySent = false;
+        });
+
+        if(alreadySent) {
+            return res.status(401).json({ message: 'Friend Request Already Sent To ' + userParams.name })
+        }
+
+        // updating db with ids of users that received and sent the request and sending notification to the right user
+        userSession.friendRequestSent.push({ userId: userIdParams, });
+        await userSession.save();
+
+        userParams.friendRequestReceived.push({ userId: userIdSession, });
+
+        // here we don't set a date to the notification because we will remove it only if the user accept or decline the friend request
+        userParams.notifications.push({ message: userSession.name + ' Sent You A Friend Request', date: undefined });
+        await userParams.save();
+        return res.status(201).json({ message: 'Friend Request Sent' });
 
     } catch (err) {
         console.log(err);

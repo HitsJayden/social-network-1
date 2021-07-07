@@ -35,7 +35,7 @@ class CreatePost extends Component {
         console.log(resData.secure_url)
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
         this.setState({ image: resData.secure_url });
@@ -62,7 +62,7 @@ class CreatePost extends Component {
         const resData = await res.json();
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
         this.setState({ laoding: false, message: resData.message });

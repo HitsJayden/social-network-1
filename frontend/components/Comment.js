@@ -32,7 +32,7 @@ class Comment extends Component {
         const resData = await res.json(); 
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
         this.setState({ totalComments: resData.totalComments, comments: resData.comments.map(comment => {
@@ -64,7 +64,7 @@ class Comment extends Component {
         const resData = await res.json();
         
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
         this.setState({ message: resData.message });

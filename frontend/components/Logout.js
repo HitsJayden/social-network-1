@@ -13,7 +13,12 @@ class Logout extends Component {
             credentials: 'include',
         });
 
-        return window.location.replace('/auth/login');
+        window.location.replace('/auth/login');
+        const resData = await res.json();
+
+        if(resData.err) {
+            console.log(resData.err);
+        };
     };
 
     render() {

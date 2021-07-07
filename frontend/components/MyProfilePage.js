@@ -4,6 +4,7 @@ import Header from './Header';
 import Like from './Like';
 import Comment from './Comment';
 import UpdateProfileImage from './UpdateProfileImage';
+import CreatePost from './CreatePost';
 
 class MyProfilePage extends Component {
     constructor(props) {
@@ -34,10 +35,11 @@ class MyProfilePage extends Component {
         const resData = await res.json();
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
 
-        this.setState({ loading: false, profileImage: resData.profileImage, posts: resData.userPosts.map(post => {
+        this.setState({ name: resData.name, surname: resData.surname, nickname: resData.nickname,
+             loading: false, profileImage: resData.profileImage, posts: resData.userPosts.map(post => {
             return (
                 <div>
                     <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
@@ -69,10 +71,14 @@ class MyProfilePage extends Component {
             {!this.state.loading && (
                 <>
                 <UpdateProfileImage />
+
+                <CreatePost />
                 
                 <figure>
                     <img src={this.state.profileImage} />
                 </figure>
+
+                <h1>{this.state.name} {this.state.surname} {this.state.nickname === '' ? '' : '(' + this.state.nickname + ')'}</h1>
 
                 {this.state.posts}
                 </>

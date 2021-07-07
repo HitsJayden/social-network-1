@@ -14,7 +14,11 @@ class Like extends Component {
             credentials: 'include',
         });
 
-        await res.json();
+        const resData = await res.json();
+
+        if(resData.err) {
+            console.log(resData.err);
+        };
     }
 
     render() {

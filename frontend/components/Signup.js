@@ -50,7 +50,7 @@ class Signup extends Component {
         this.setState({ message: resData.message, loading: false });
 
         if(resData.err) {
-            console.log(err);
+            console.log(resData.err);
         };
     };
 

@@ -56,10 +56,46 @@ agenda.define('deleting users that did not verify their email within 1 hour', as
     });
 });
 
+agenda.define('deleting notifications that are older than 1 week', async (job) => {
+    // first we find all the users
+    const users = await User.find();
+
+    // then we analyze them one by one
+    users.map(user => {
+        // analyzing the notifications
+        user.notifications.map(async notification => { 
+            // we will use this variable to determinate if a notification is a friend request or not
+            let date;
+
+            // so if it is a friend request we set date grater then Date.now() so that we do not remove it
+            if(notification.date === undefined) {
+                date = Date.now() + 1;
+            };
+
+            // if it is not a friend request we set date with the date that there is into the db
+            if(notification.date) {
+                date = notification.date;
+            };
+
+            // if it passes more than 1 week we proceed on remove it
+            if(Date.now() > date) {
+                let userNotifications = user.notifications;
+                const updatedNotifications = userNotifications.filter(noti => { console.log('noti', noti)
+                    return Date.now() < noti.date; 
+                }); 
+
+                user.notifications = updatedNotifications;
+                await user.save();
+            };
+        });
+    });
+});
+
 // starting the agenda background jobs
 (async function() {
     await agenda.start();
     await agenda.every("5 seconds", "deleting users that did not verify their email within 1 hour");
+    await agenda.every("5 seconds", "deleting notifications that are older than 1 week");
 })();
 
 // setting up sessions into db
