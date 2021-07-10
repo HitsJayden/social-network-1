@@ -338,7 +338,7 @@ exports.like = async (req, res, next) => {
             if(userPostId.toString() !== userId.toString()) {
                 userPost.notifications.push({
                     message: user.name + ' Liked Your Post ' + post.content.slice(0, 8),
-                    date: Date.now() + 60 * 30, // remember to change it!!!
+                    date: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
                 });
                 await userPost.save();
             };
@@ -416,7 +416,7 @@ exports.comments = async (req, res, next) => {
         if(post.userId.toString() !== userCommentedId.toString()) {
             userPost.notifications.push({
                 message: userCommented.name + ' Commented Your Post ' + post.content.slice(0, 8),
-                date: Date.now() + 10, // remember to change it!!!
+                date: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
             });
             await userPost.save();
         };
@@ -650,6 +650,48 @@ exports.sendFriendRequest = async (req, res, next) => {
         userParams.notifications.push({ message: userSession.name + ' Sent You A Friend Request', date: undefined });
         await userParams.save();
         return res.status(201).json({ message: 'Friend Request Sent' });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.getNotifications = async (req, res, next) => {
+    try {
+        // checking if the user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        // getting the notifications of the user and sending them on the client side
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+        const notifications = user.notifications;
+        return res.status(200).json({ message: 'Notifications Fetched', notifications });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.acceptFriendRequest = async (req, res, next) => {
+    try {
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
 
     } catch (err) {
         console.log(err);

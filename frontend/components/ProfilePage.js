@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import Header from './Header';
 import Like from './Like';
 import Comment from './Comment';
+import SendFriendRequest from './SendFriendRequest';
 
 class ProfilePage extends Component {
     constructor(props) {
@@ -20,28 +21,6 @@ class ProfilePage extends Component {
 
         this.fetchData = this.fetchData.bind(this);
     }
-
-    sendFriendRequest = async () => {
-        const userId = this.props.userId;
-
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/send-friend-request/${userId}`, {
-            method: 'PUT',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include'
-        });
-        const resData = await res.json();
-
-        if(resData.err) {
-            console.log(resData.err);
-        };
-
-        this.setState({ message: resData.message });
-        localStorage.setItem('blue', 'true')
-    };
 
     fetchData = async () => {
         this.setState({ loading: true })
@@ -102,7 +81,7 @@ class ProfilePage extends Component {
 
                 <h1>{this.state.name} {this.state.surname} {this.state.nickname === '' ? '' : '(' + this.state.nickname + ')'}</h1>
 
-                <button onClick={this.sendFriendRequest}>Send Friend Request</button>
+                <SendFriendRequest userId={this.props.userId} />
 
                 {this.state.posts}
                 </>

@@ -27,7 +27,7 @@ class Login extends Component {
         this.fetchData();
     };
 
-    fetchData = async e => {
+    fetchData = async () => {
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
             method: 'POST',
 
@@ -43,7 +43,7 @@ class Login extends Component {
             }),
         });
 
-        const resData = await res.json();
+        const resData = await res.json(); 
         this.setState({ message: resData.message, loading: false });
 
         if(resData.err) {

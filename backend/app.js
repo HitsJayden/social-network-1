@@ -63,24 +63,24 @@ agenda.define('deleting notifications that are older than 1 week', async (job) =
     // then we analyze them one by one
     users.map(user => {
         // analyzing the notifications
-        user.notifications.map(async notification => { 
+        user.notifications.map(async notification => {
             // we will use this variable to determinate if a notification is a friend request or not
             let date;
 
-            // so if it is a friend request we set date grater then Date.now() so that we do not remove it
+            // so if it is a friend request (if the date is undefined it means that is a friend request) we set date greater then Date.now() so that we do not remove it
             if(notification.date === undefined) {
                 date = Date.now() + 1;
             };
 
-            // if it is not a friend request we set date with the date that there is into the db
+            // if it is not a friend request (so notification.date returns true) we set date with the date that there is into the db
             if(notification.date) {
                 date = notification.date;
             };
 
-            // if it passes more than 1 week we proceed on remove it
+            // if it passes more than 1 week we proceed on removing it
             if(Date.now() > date) {
-                let userNotifications = user.notifications;
-                const updatedNotifications = userNotifications.filter(noti => { console.log('noti', noti)
+                const userNotifications = user.notifications;
+                const updatedNotifications = userNotifications.filter(noti => {
                     return Date.now() < noti.date; 
                 }); 
 

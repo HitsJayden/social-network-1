@@ -32,7 +32,7 @@ class MyProfilePage extends Component {
             credentials: 'include',
         });
 
-        const resData = await res.json();
+        const resData = await res.json(); console.log(resData)
 
         if(resData.err) {
             console.log(resData.err);

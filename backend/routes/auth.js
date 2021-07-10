@@ -22,5 +22,6 @@ router.get('/load-profile/:userId', authController.profilePage);
 router.patch('/load-profile-image', authController.updateProfileImage);
 
 router.put('/send-friend-request/:userId', authController.sendFriendRequest);
+router.get('/notifications', authController.getNotifications);
 
 module.exports = router;
