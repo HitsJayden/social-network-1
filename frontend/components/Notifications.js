@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import cookie from 'react-cookies';
 
 import { FaBell } from 'react-icons/fa';
 
@@ -49,7 +48,7 @@ class Notifications extends Component {
     render() {
         return (
             <>
-            {cookie.load('authCookie') && <button onClick={this.notifications}><FaBell /></button>}
+            <button onClick={this.notifications}><FaBell /></button>
             {this.state.getNotifications && this.state.notifications}
             </>
         )

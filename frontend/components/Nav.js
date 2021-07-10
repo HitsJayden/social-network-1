@@ -15,7 +15,7 @@ class Nav extends Component {
             {cookie.load('authCookie') && <Link href="/auth/my-profile"><button>Profile</button></Link>}
             {!cookie.load('authCookie') && <Link href="/auth/login"><button>Login</button></Link>}
             {!cookie.load('authCookie') && <Link href="/auth/signup"><button>Signup</button></Link>}
-            <Notifications />
+            {cookie.load('authCookie') && <Notifications />}
             {cookie.load('authCookie') &&  <button><FaCogs /></button>}
             {cookie.load('authCookie') && <Logout />}
 
