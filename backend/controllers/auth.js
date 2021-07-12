@@ -197,6 +197,8 @@ exports.login = async (req, res, next) => {
                 // tokens into cookies and saving the session
                 res.cookie('token', token, { maxAge: 3600000 * 24, httpOnly: true, path: '/' });
                 res.cookie('authCookie', weakToken, { maxAge: 3600000 * 24, httpOnly: false, path: '/' });
+                // I will use the following cookie in order to show a custom message based on if users are friends
+                res.cookie('userId', userId, { maxAge: 3600000 * 24, httpOnly: false, path: '/' });
                 req.session.save(err => console.log(err));
             })
             .catch(err => console.log(err));
@@ -552,7 +554,8 @@ exports.profilePage = async (req, res, next) => {
         const name = user.name;
         const surname = user.surname;
         const nickname = user.nickname;
-        return res.status(200).json({ message: 'Posts Fetched', userPosts, profileImage, name, surname, nickname });
+        const friends = user.friends;
+        return res.status(200).json({ message: 'Posts Fetched', userPosts, profileImage, name, surname, nickname, friends });
 
     } catch (err) {
         console.log(err);
@@ -735,21 +738,22 @@ exports.acceptFriendRequest = async (req, res, next) => {
         const userIdParams = req.params.userId; 
         const userParams = await User.findById(userIdParams);
 
-        // updating the friend request received (userParams is the one who sent the friend request)
+        // updating the friend request received (userParams is the one who sent the friend request) and friends list
         const userFriendRequestReceived = user.friendRequestReceived; 
         const friendRequestReceivedUpdated = userFriendRequestReceived.filter(i => {
             return i.userId.toString() !== userIdParams.toString();
         }); 
-        user.friendRequestReceived = friendRequestReceivedUpdated;
 
+        user.friendRequestReceived = friendRequestReceivedUpdated;
         user.friends.push({ userId: userIdParams, });
         await user.save(); 
 
-        // updating friend request sent (user is the one that is accepting the friend request)
+        // updating friend request sent (user is the one that is accepting the friend request) and friends list
         const userFriendRequestSent = userParams.friendRequestSent;
         const friendRequestSentUpdated = userFriendRequestSent.filter(i => {
             return i.userId.toString() !== userId.toString();
         });
+
         userParams.friendRequestSent = friendRequestSentUpdated;
         userParams.friends.push({ userId });
         // sending a notification to the user that says that the friend request was accepted
@@ -761,7 +765,7 @@ exports.acceptFriendRequest = async (req, res, next) => {
         await userParams.save();
 
         // mapping the notifications so that we can delete it once the request is accepted 
-        // (and so we avoid to push the same friend over and over)
+        // (and so we avoid to push the same friend over and over if the user clicks more times on accept)
         user.notifications.map(async notification => {
             // here we check if it is a friend request
             if(notification.message.includes('Sent You A Friend Request')) {
@@ -778,6 +782,70 @@ exports.acceptFriendRequest = async (req, res, next) => {
         });
 
         return res.status(201).json({ message: 'You Accepted ' + userParams.name + ' Friend Request' });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
+exports.declineFriendRequest = async (req, res, next) => {
+    try {
+        // checking if the user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        // finding the 2 users
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+        const userIdParams = req.params.userId;
+        const userParams = await User.findById(userIdParams);
+
+        // here we update the requests that this user received
+        const userFriendRequestReceived = user.friendRequestReceived;
+        const updatedFriendRequestReceived = userFriendRequestReceived.filter(reqReceived => {
+            return reqReceived.userId.toString() !== userIdParams.toString();
+        });
+
+        user.friendRequestReceived = updatedFriendRequestReceived;
+        await user.save();
+
+        // here we update the requests that the userParam sent
+        const userParamsRequestSent = userParams.friendRequestSent;
+        const updatedFriendRequestSent = userParamsRequestSent.filter(reqSent => {
+            return reqSent.userId.toString() !== userId.toString();
+        });
+
+        userParams.friendRequestSent = updatedFriendRequestSent;
+        await userParams.save();
+
+        // mapping the notifications so that we can delete it once the request is declined 
+        user.notifications.map(async notification => {
+            // here we check if it is a friend request
+            if(notification.message.includes('Sent You A Friend Request')) {
+                // here we delete it by comparing the users ids
+                if(userIdParams.toString() === notification.userId.toString()) {
+                    const notifications = user.notifications;
+                    const updatedNotifications = notifications.filter(noti => {
+                        return noti.userId.toString() !== userIdParams.toString();
+                    });
+                    user.notifications = updatedNotifications;
+                    await user.save();
+                };
+            };
+        });
+
+        return res.status(200).json({ message: 'You Declined ' + userParams.name + "'s Friend Request" });
 
     } catch (err) {
         console.log(err);

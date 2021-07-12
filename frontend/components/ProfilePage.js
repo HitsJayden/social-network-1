@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import cookie from 'react-cookies';
 
 import Header from './Header';
 import Like from './Like';
@@ -17,6 +18,8 @@ class ProfilePage extends Component {
             surname: '',
             nickname: '',
             message: null,
+            friends: [],
+            friend: false,
         };
 
         this.fetchData = this.fetchData.bind(this);
@@ -40,6 +43,21 @@ class ProfilePage extends Component {
         if(resData.err) {
             console.log(resData.err);
         };
+
+        // if the user is a friend we show the button delete friend otherwise send friend request
+        this.setState({ friends: resData.friends.map(friend => {
+            const userId = cookie.load('userId');
+            const userIdParams = this.props.userId;
+            
+            if(userId.toString() === friend.userId.toString()) {
+                return this.setState({ friend: true });
+            };
+
+            // if the user is the same person we redirect to profile page
+            if(userId.toString() === userIdParams.toString()) {
+                return window.location.replace('/auth/my-profile')
+            }
+        }) })
 
         this.setState({ name: resData.name, surname: resData.surname, nickname: resData.nickname,
              loading: false, profileImage: resData.profileImage, posts: resData.userPosts.map(post => {
@@ -81,7 +99,7 @@ class ProfilePage extends Component {
 
                 <h1>{this.state.name} {this.state.surname} {this.state.nickname === '' ? '' : '(' + this.state.nickname + ')'}</h1>
 
-                <SendFriendRequest userId={this.props.userId} />
+                {!this.state.friend && <SendFriendRequest userId={this.props.userId} />}
 
                 {this.state.posts}
                 </>
