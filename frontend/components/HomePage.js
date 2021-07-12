@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import cookie from 'react-cookies';
+import Link from 'next/link';
 
 import CreatePost from './CreatePost';
 import Comment from './Comment';
@@ -48,7 +49,7 @@ class HomePage extends Component {
                         <img src={post.image} alt={post.content} />
                     </figure>
                     
-                    <p>{post.content}</p>
+                    <Link href={`/auth/view-post/${post._id}`}><p>{post.content}</p></Link>
                     <Like postId={post._id} />
                     <p>{post.likes.likes} {post.likes.likes === 1 ? 'person' : 'people'} like this post</p>
                     <Comment postId={post._id} />

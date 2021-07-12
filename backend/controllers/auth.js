@@ -279,6 +279,27 @@ exports.makePost = async (req, res, next) => {
     };
 };
 
+exports.viewPost = async (req, res, next) => {
+    try {
+        const postId = req.params.postId;
+        const post = await Post.findById(postId);
+
+        const createdAt = post.createdAt;
+        const content = post.content;
+        const image = post.image;
+        const likes = post.likes.likes;
+
+        return res.status(200).json({ message: 'Post Fetched', createdAt, content, image, likes });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
 exports.homePage = async (req, res, next) => {
     try {
         // sending in res all the posts that we have so that we can fetch it on the client side
@@ -339,6 +360,7 @@ exports.like = async (req, res, next) => {
                 userPost.notifications.push({
                     message: user.name + ' Liked Your Post ' + post.content.slice(0, 8),
                     date: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+                    postId,
                 });
                 await userPost.save();
             };
@@ -417,6 +439,7 @@ exports.comments = async (req, res, next) => {
             userPost.notifications.push({
                 message: userCommented.name + ' Commented Your Post ' + post.content.slice(0, 8),
                 date: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+                postId,
             });
             await userPost.save();
         };
@@ -647,7 +670,12 @@ exports.sendFriendRequest = async (req, res, next) => {
         userParams.friendRequestReceived.push({ userId: userIdSession, });
 
         // here we don't set a date to the notification because we will remove it only if the user accept or decline the friend request
-        userParams.notifications.push({ message: userSession.name + ' Sent You A Friend Request', date: undefined });
+        userParams.notifications.push({ 
+            message: userSession.name + ' Sent You A Friend Request', 
+            date: undefined, 
+            userId: userIdSession,
+        });
+
         await userParams.save();
         return res.status(201).json({ message: 'Friend Request Sent' });
 
@@ -690,8 +718,66 @@ exports.getNotifications = async (req, res, next) => {
 
 exports.acceptFriendRequest = async (req, res, next) => {
     try {
+        // checking if user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        // finding the 2 users
         const userId = req.session.user._id;
         const user = await User.findById(userId);
+        const userIdParams = req.params.userId; 
+        const userParams = await User.findById(userIdParams);
+
+        // updating the friend request received (userParams is the one who sent the friend request)
+        const userFriendRequestReceived = user.friendRequestReceived; 
+        const friendRequestReceivedUpdated = userFriendRequestReceived.filter(i => {
+            return i.userId.toString() !== userIdParams.toString();
+        }); 
+        user.friendRequestReceived = friendRequestReceivedUpdated;
+
+        user.friends.push({ userId: userIdParams, });
+        await user.save(); 
+
+        // updating friend request sent (user is the one that is accepting the friend request)
+        const userFriendRequestSent = userParams.friendRequestSent;
+        const friendRequestSentUpdated = userFriendRequestSent.filter(i => {
+            return i.userId.toString() !== userId.toString();
+        });
+        userParams.friendRequestSent = friendRequestSentUpdated;
+        userParams.friends.push({ userId });
+        // sending a notification to the user that says that the friend request was accepted
+        userParams.notifications.push({
+            userId,
+            message: user.name + ' Accepted Your Friend Request',
+            date: Date.now() + 1000 * 60 * 60 * 7,
+        });
+        await userParams.save();
+
+        // mapping the notifications so that we can delete it once the request is accepted 
+        // (and so we avoid to push the same friend over and over)
+        user.notifications.map(async notification => {
+            // here we check if it is a friend request
+            if(notification.message.includes('Sent You A Friend Request')) {
+                // here we delete it by comparing the users ids
+                if(userIdParams.toString() === notification.userId.toString()) {
+                    const notifications = user.notifications;
+                    const updatedNotifications = notifications.filter(noti => {
+                        return noti.userId.toString() !== userIdParams.toString();
+                    });
+                    user.notifications = updatedNotifications;
+                    await user.save();
+                };
+            };
+        });
+
+        return res.status(201).json({ message: 'You Accepted ' + userParams.name + ' Friend Request' });
 
     } catch (err) {
         console.log(err);

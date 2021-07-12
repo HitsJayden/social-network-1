@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 
 class SendFriendRequest extends Component {
+    state = {
+        message: null,
+    }
     
     sendFriendRequest = async () => {
         const userId = this.props.userId;
@@ -21,12 +24,14 @@ class SendFriendRequest extends Component {
         };
 
         this.setState({ message: resData.message });
-        localStorage.setItem('blue', 'true')
     };
 
     render() {
         return(
+            <>
+            {this.state.message && <h1>{this.state.message}</h1>}
             <button onClick={this.sendFriendRequest}>Send Friend Request</button>
+            </>
         )
     }
 }

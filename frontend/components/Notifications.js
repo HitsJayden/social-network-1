@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import Link from 'next/link';
 
 import { FaBell } from 'react-icons/fa';
+import AcceptFriendRequest from './AcceptFriendRequest';
 
 class Notifications extends Component {
     constructor(props) {
@@ -33,9 +35,15 @@ class Notifications extends Component {
 
         this.setState({ notifications: resData.notifications.map(notification => {
             return (
+                /* based on the type of notification we will give the user a different link */
                 <div>
-                    <h1>{notification.message}</h1>
-                    {notification.message.includes('Sent You A Friend Request') ? <><button>Accept</button> <button>Decline</button></> : ''}
+                    {notification.message.includes('Post') && <Link href={`/auth/view-post/${notification.postId}`}>
+                        <h1>{notification.message}</h1>
+                    </Link> }
+                    {notification.message.includes('Accepted Your Friend Request') && 
+                    <Link href={`/auth/load-profile/${notification.userId}`}><h1>{notification.message}</h1></Link>}
+                    {notification.message.includes('Sent You A Friend Request') ? <>
+                        <AcceptFriendRequest userId={notification.userId} /> <button>Decline</button></> : ''}
                 </div>
             )
         }) });
