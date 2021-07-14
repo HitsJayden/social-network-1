@@ -2,8 +2,7 @@ import React, { Component } from 'react';
 import Link from 'next/link';
 
 import { FaBell } from 'react-icons/fa';
-import AcceptFriendRequest from './AcceptFriendRequest';
-import DeclineFriendRequest from './DeclineFriendRequest';
+import AcceptDeclineFriendRequest from './AcceptDeclineFriendRequest';
 
 class Notifications extends Component {
     constructor(props) {
@@ -45,7 +44,7 @@ class Notifications extends Component {
                     <Link href={`/auth/load-profile/${notification.userId}`}><h1>{notification.message}</h1></Link>}
                     {notification.message.includes('Sent You A Friend Request') ? <>
                         <h1>{notification.message}</h1>
-                        <AcceptFriendRequest userId={notification.userId} /> <DeclineFriendRequest userId={notification.userId} /></> : ''}
+                        <AcceptDeclineFriendRequest userId={notification.userId} /> </> : ''}
                 </div>
             )
         }) });

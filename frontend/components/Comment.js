@@ -1,22 +1,15 @@
 import React, { Component } from 'react';
 
-import DeleteComment from './DeleteComment';
+import LoadComments from './LoadComments';
 
 class Comment extends Component {
-    constructor(props) {
-        super(props) 
+    state = {
+        message: null,
+        content: '',
+        totalComments: 0,
+    };
 
-        this.state = {
-            message: null,
-            content: '',
-            comments: [],
-            totalComments: null,
-        };
-
-        this.fetchComments = this.fetchComments.bind(this);
-    }
-
-    fetchComments = async () => {
+    totalComments = async () => {
         const postId = this.props.postId;
 
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/load-comments/${postId}`, {
@@ -35,15 +28,8 @@ class Comment extends Component {
             console.log(resData.err);
         };
 
-        this.setState({ totalComments: resData.totalComments, comments: resData.comments.map(comment => {
-            return (
-                <div key={comment._id}>
-                    <p key={comment._id}>{comment.content}</p>
-                    <DeleteComment postId={this.props.postId} commentId={comment._id} />
-                </div>
-            );
-        }) })
-    }
+        this.setState({ totalComments: resData.totalComments });
+    };
 
     fetchData = async () => {
         const postId = this.props.postId;
@@ -68,6 +54,9 @@ class Comment extends Component {
         };
 
         this.setState({ message: resData.message });
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
     };
 
     handleChange = e => {
@@ -75,17 +64,19 @@ class Comment extends Component {
     };
 
     componentDidMount() {
-        this.fetchComments();
-    }
+        this.totalComments();
+    };
 
     render() {
         return(
             <>
-            <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" cols="10" rows="5"></textarea>
+            <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" 
+            cols="10" rows="5"></textarea>
+            {this.state.message && <h1>{this.state.message}</h1>}
             <button onClick={this.fetchData}>Submit</button>
-            <p>There {this.state.totalComments > 1 || 
-            this.state.totalComments === 0 ? 'Are' : 'Is'} {this.state.totalComments} Comment{this.state.totalComments > 1 ? 's': ''} On This Post</p>
-            {this.state.comments}
+            <p>There {this.state.totalComments > 1 || this.state.totalComments === 0 ? 
+            'Are' : 'Is'} {this.state.totalComments} Comment{this.state.totalComments > 1 ? 's': ''} On This Post</p>
+            <LoadComments totalComments={this.state.totalComments} postId={this.props.postId} />
             </>
         )
     }

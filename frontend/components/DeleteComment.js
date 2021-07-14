@@ -9,6 +9,10 @@ class DeleteComment extends Component {
         const commentId = this.props.commentId;
         const postId = this.props.postId;
 
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/delete-comment/${commentId}/${postId}`, {
             method: 'DELETE',
 
@@ -31,7 +35,10 @@ class DeleteComment extends Component {
 
     render() {
         return(
+            <>
+            <h1>{this.state.message}</h1>
             <button onClick={this.deleteComment} aria-label="delete comment">X</button>
+            </>
         )
     }
 };

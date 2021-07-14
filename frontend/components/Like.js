@@ -4,6 +4,10 @@ class Like extends Component {
     like = async () => {
         const postId = this.props.postId;
 
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+
         const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/like/${postId}`, {
             method: 'PATCH',
 
@@ -19,7 +23,7 @@ class Like extends Component {
         if(resData.err) {
             console.log(resData.err);
         };
-    }
+    };
 
     render() {
         return <button onClick={this.like}>like</button>

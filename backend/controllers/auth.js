@@ -281,6 +281,41 @@ exports.makePost = async (req, res, next) => {
     };
 };
 
+exports.deletePost = async (req, res, next) => {
+    try {
+        // checking if the user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        const postId = req.params.postId;
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+
+        const userPosts = user.posts;
+        const updatedPosts = userPosts.filter(post => {
+            return post.postId.toString() !== postId.toString();
+        });
+        user.posts = updatedPosts;
+        await user.save();
+        await Post.findByIdAndRemove(postId);
+        return res.status(200).json({ message: 'Post Was Deleted' });
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};
+
 exports.viewPost = async (req, res, next) => {
     try {
         const postId = req.params.postId;
@@ -304,9 +339,27 @@ exports.viewPost = async (req, res, next) => {
 
 exports.homePage = async (req, res, next) => {
     try {
-        // sending in res all the posts that we have so that we can fetch it on the client side
-        const posts = await Post.find();
-        return res.status(200).json({ message: 'Posts Fetched', posts });
+        // checking if user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        // finding the user, finding his friends and only showing the posts of his friends
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+
+        const userFriends = user.friends.map(friend => {
+            return friend.userId;
+        }); 
+
+        const posts = await Post.find({ userId: userFriends });
+        return res.status(200).json({ message: 'Posts Fetched', posts });        
 
     } catch (err) {
         console.log(err);
@@ -526,9 +579,6 @@ exports.removeComment = async (req, res, next) => {
                 post.totalComments -= 1;
                 await post.save();
                 return res.status(200).json({ message: 'Comment Deleted' });
-            } else {
-                // if the user is not the owner of the comment we show an error message
-                return res.status(401).json({ message: 'You Cannot Take This Action' });
             };
         });
 
@@ -774,14 +824,13 @@ exports.acceptFriendRequest = async (req, res, next) => {
                     const notifications = user.notifications;
                     const updatedNotifications = notifications.filter(noti => {
                         return noti.userId.toString() !== userIdParams.toString();
-                    });
+                    }); console.log(updatedNotifications)
                     user.notifications = updatedNotifications;
                     await user.save();
                 };
             };
         });
-
-        return res.status(201).json({ message: 'You Accepted ' + userParams.name + ' Friend Request' });
+        return res.status(201).json({ message: 'You Accepted ' + userParams.name + "'s Friend Request" });
 
     } catch (err) {
         console.log(err);

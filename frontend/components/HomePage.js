@@ -45,9 +45,11 @@ class HomePage extends Component {
                 <div key={post._id}>
                     <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
 
-                    <figure>
-                        <img src={post.image} alt={post.content} />
-                    </figure>
+                    {post.image && (
+                        <figure>
+                            <img src={post.image} alt={post.content} />
+                        </figure>
+                    )}
                     
                     <Link href={`/auth/view-post/${post._id}`}><p>{post.content}</p></Link>
                     <Like postId={post._id} />

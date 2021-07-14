@@ -5,6 +5,7 @@ import Like from './Like';
 import Comment from './Comment';
 import UpdateProfileImage from './UpdateProfileImage';
 import CreatePost from './CreatePost';
+import DeletePost from './DeletePost';
 
 class MyProfilePage extends Component {
     constructor(props) {
@@ -32,7 +33,7 @@ class MyProfilePage extends Component {
             credentials: 'include',
         });
 
-        const resData = await res.json(); console.log(resData)
+        const resData = await res.json(); 
 
         if(resData.err) {
             console.log(resData.err);
@@ -41,7 +42,8 @@ class MyProfilePage extends Component {
         this.setState({ name: resData.name, surname: resData.surname, nickname: resData.nickname,
              loading: false, profileImage: resData.profileImage, posts: resData.userPosts.map(post => {
             return (
-                <div>
+                <div key={post._id}>
+                    <DeletePost postId={post._id} />
                     <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
 
                     <figure>

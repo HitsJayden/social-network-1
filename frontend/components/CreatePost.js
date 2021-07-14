@@ -65,6 +65,10 @@ class CreatePost extends Component {
             console.log(resData.err);
         };
 
+        setTimeout(() => {
+            window.location.reload();
+        }, 500);
+
         this.setState({ laoding: false, message: resData.message });
     };
 

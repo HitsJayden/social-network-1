@@ -10,6 +10,7 @@ router.post('/login', authController.login);
 router.delete('/logout', authController.logout);
 
 router.put('/create-post', authController.makePost);
+router.delete('/delete-post/:postId', authController.deletePost);
 router.get('/view-post/:postId', authController.viewPost);
 router.get('/home-page', authController.homePage);
 
@@ -25,6 +26,7 @@ router.patch('/load-profile-image', authController.updateProfileImage);
 router.put('/send-friend-request/:userId', authController.sendFriendRequest);
 router.patch('/accept-friend/:userId', authController.acceptFriendRequest);
 router.patch('/decline-friend/:userId', authController.declineFriendRequest);
+
 router.get('/notifications', authController.getNotifications);
 
 module.exports = router;
