@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Link from 'next/link';
+import Header from './Header';
 
 class Settings extends Component {
     state = {
@@ -51,6 +52,11 @@ class Settings extends Component {
 
     render() {
         return (
+            <>
+            <Header />
+
+            <h1>{this.state.message}</h1>
+
             <form onSubmit={this.fetchData}>
                 <fieldset aria-busy={this.state.laoding} disabled={this.state.loading}>
 
@@ -144,6 +150,7 @@ class Settings extends Component {
                     <Link href="/reset-password"><button>Forgot Password?</button></Link>
                 </fieldset>
             </form>
+            </>
         )
     }
 };

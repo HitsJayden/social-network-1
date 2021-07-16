@@ -28,5 +28,6 @@ router.patch('/accept-friend/:userId', authController.acceptFriendRequest);
 router.patch('/decline-friend/:userId', authController.declineFriendRequest);
 
 router.get('/notifications', authController.getNotifications);
+router.patch('/settings', authController.settings);
 
 module.exports = router;

@@ -934,15 +934,17 @@ exports.settings = async (req, res, next) => {
             email = user.email;
         }
 
-        if(!email.match(emailRegex)) {
-            return res.status(422).json({ message: 'Invalid Email' });
-        };
-
-        // checking if an user already signed up with this email
-        const userExists = await User.findOne({ email });
-
-        if(userExists) {
-            return res.status(409).json({ message: 'User ' + email + ' Already Exists' });
+        if(email !== user.email) {
+            if(!email.match(emailRegex)) {
+                return res.status(422).json({ message: 'Invalid Email' });
+            };
+    
+            // checking if an user already signed up with this email
+            const userExists = await User.findOne({ email });
+    
+            if(userExists) {
+                return res.status(409).json({ message: 'User ' + email + ' Already Exists' });
+            };
         };
 
         if(name === '') {
