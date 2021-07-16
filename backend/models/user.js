@@ -75,11 +75,6 @@ const userSchema = new Schema({
         userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
         postId: { type: Schema.Types.ObjectId, ref: 'Post', required: false },
     }],
-
-    chats: [{
-        conversation: { type: String, required: false },
-        userId: { type: Schema.Types.ObjectId, ref: 'User', required: false },
-    }]
 }, { timestamps: true });
 
 module.exports = mongoose.model('User', userSchema);

@@ -918,14 +918,21 @@ exports.settings = async (req, res, next) => {
         jwt.verify(token, process.env.TOKEN_SECRET);
         jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
 
-        const email = req.body.email;
-        const password = req.body.password;
-        const confirmPassword = req.body.confirmPassword;
-        const newPassword = req.body.newPassword;
-        const name = req.body.name;
-        const surname = req.body.surname;
-        const nickname = req.body.nickname;
+        const userId = req.session.user._id;
+        const user = await User.findById(userId);
+
+        let email = req.body.email;
+        let password = req.body.password;
+        let confirmPassword = req.body.confirmPassword;
+        let newPassword = req.body.newPassword;
+        let name = req.body.name;
+        let surname = req.body.surname;
+        let nickname = req.body.nickname;
         const emailRegex = /^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i;
+
+        if(email === '') {
+            email = user.email;
+        }
 
         if(!email.match(emailRegex)) {
             return res.status(422).json({ message: 'Invalid Email' });
@@ -938,24 +945,45 @@ exports.settings = async (req, res, next) => {
             return res.status(409).json({ message: 'User ' + email + ' Already Exists' });
         };
 
-        // name cannot be empty
-        if(name.length === 0) {
-            return res.status(422).json({ message: 'Please Enter Your Name' });
+        if(name === '') {
+            name = user.name;
         };
 
-        // surname cannot be empty
-        if(surname.length === 0) {
-            return res.status(422).json({ message: 'Please Enter Your Surname' });
+        if(surname === '') {
+            surname = user.surname;
         };
 
-        // password >= 5
-        if(newPassword.length < 5) {
+        if(nickname === '') {
+            nickname = user.nickname;
+        };
+
+        if(newPassword.length < 5 && newPassword !== '' && confirmPassword !== '') {
             return res.status(422).json({ message: 'Password Needs To Be At Least 5 Characters' });
         };
 
         if(newPassword !== confirmPassword) {
             return res.status(403).json({ message: 'Passwords Do Not Match' });
         };
+
+        const isValid = await bcrypt.compare(password, user.password);
+
+        if(!isValid) {
+            return res.status(401).json({ message: 'Password Is Wrong, Please Confirm Your Password In Order To Change Details' });
+        };
+
+        // changing details
+        user.email = email;
+        user.name = name;
+        user.surname = surname;
+        user.nickname = nickname;
+
+        if(newPassword !== '' && confirmPassword !== '') {
+            const hashedPassword = await bcrypt.hash(newPassword, 12);
+            user.password = hashedPassword;
+        };
+
+        await user.save();
+        return res.status(200).json({ message: 'Details Changed!' });
 
     } catch (err) {
         console.log(err);

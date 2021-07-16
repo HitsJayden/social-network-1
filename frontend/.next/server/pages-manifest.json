@@ -3,5 +3,5 @@
   "/_document": "pages/_document.js",
   "/_error": "pages/_error.js",
   "/auth/my-profile": "pages/auth/my-profile.js",
-  "/": "pages/index.js"
+  "/auth/settings": "pages/auth/settings.js"
 }
