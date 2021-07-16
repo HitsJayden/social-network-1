@@ -26,31 +26,31 @@ class Signup extends Component {
     };
 
     fetchData = async () => {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`, {
-            method: 'PUT',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-
-            credentials: 'include',
-            body: JSON.stringify({
-                name: this.state.name,
-                surname: this.state.surname,
-                nickname: this.state.nickname,
-                password: this.state.password,
-                confirmPassword: this.state.confirmPassword,
-                email: this.state.email,
-            }),
-        });
-
-        const resData = await res.json(); console.log(resData)
-
-        this.setState({ message: resData.message, loading: false });
-
-        if(resData.err) {
-            console.log(resData.err);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`, {
+                method: 'PUT',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+    
+                credentials: 'include',
+                body: JSON.stringify({
+                    name: this.state.name,
+                    surname: this.state.surname,
+                    nickname: this.state.nickname,
+                    password: this.state.password,
+                    confirmPassword: this.state.confirmPassword,
+                    email: this.state.email,
+                }),
+            });
+    
+            const resData = await res.json(); console.log(resData)
+    
+            this.setState({ message: resData.message, loading: false });
+        } catch (err) {
+            console.log(err);
         };
     };
 

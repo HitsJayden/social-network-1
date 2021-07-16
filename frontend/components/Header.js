@@ -3,12 +3,15 @@ import styled from 'styled-components';
 
 import Nav from '../components/Nav';
 
-const HeaderStyle = styled.header`
-
-`;
+/* const HeaderStyle = styled.header`
+    position: fixed;
+`; */
 
 const Header = () => {
-    return <Nav />
-}
+    return( 
+    // <HeaderStyle>
+        <Nav />
+    // </HeaderStyle>
+)}
 
 export default Header;

@@ -21,43 +21,42 @@ class HomePage extends Component {
     }
 
     fetchData = async () => {
-        this.setState({ loading: true });
+        try {
+            this.setState({ loading: true });
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/home-page`, {
-            method: 'GET',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-
-            credentials: 'include',
-        });
-
-        const resData = await res.json();
-
-        if(resData.err) {
-            console.log(resData.err);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/home-page`, {
+                method: 'GET',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+    
+                credentials: 'include',
+            });
+            const resData = await res.json();
+    
+            this.setState({ loading: false, posts: resData.posts.map(post => {
+                return(
+                    <div key={post._id}>
+                        <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
+    
+                        {post.image && (
+                            <figure>
+                                <img src={post.image} alt={post.content} />
+                            </figure>
+                        )}
+                        
+                        <Link href={`/auth/view-post/${post._id}`}><p>{post.content}</p></Link>
+                        <Like postId={post._id} />
+                        <p>{post.likes.likes} {post.likes.likes === 1 ? 'person' : 'people'} like this post</p>
+                        <Comment postId={post._id} />
+                    </div>
+                )
+            }) });
+        } catch (err) {
+            console.log(err);
         };
-
-        this.setState({ loading: false, posts: resData.posts.map(post => {
-            return(
-                <div key={post._id}>
-                    <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
-
-                    {post.image && (
-                        <figure>
-                            <img src={post.image} alt={post.content} />
-                        </figure>
-                    )}
-                    
-                    <Link href={`/auth/view-post/${post._id}`}><p>{post.content}</p></Link>
-                    <Like postId={post._id} />
-                    <p>{post.likes.likes} {post.likes.likes === 1 ? 'person' : 'people'} like this post</p>
-                    <Comment postId={post._id} />
-                </div>
-            )
-        }) });
     };
 
     componentDidMount() {

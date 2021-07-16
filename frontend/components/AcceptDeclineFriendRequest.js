@@ -8,52 +8,64 @@ class AcceptDeclineFriendRequest extends Component {
     };
 
     declineRequest = async () => {
-        const userId = this.props.userId;
+        try {
+            const userId = this.props.userId;
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/decline-friend/${userId}`, {
-            method: 'PATCH',
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/decline-friend/${userId}`, {
+                method: 'PATCH',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+            });
+    
+            const resData = await res.json();
+    
+            this.setState({ message: resData.message });
+    
+            if(this.state.message.includes('You Declined')) {
+                this.setState({ accepted: true, declined: true });
+            };
 
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include',
-        });
-
-        const resData = await res.json();
-
-        this.setState({ message: resData.message });
-
-        if(this.state.message.includes('You Declined')) {
-            this.setState({ accepted: true, declined: true });
-        };
-        setTimeout(() => {
+            // when scrolls changes we save it in local storage, reload the page and then go again to the same scroll
+            localStorage.setItem('scrollPosition', window.scrollY);
             window.location.reload();
-        }, 1000);
+            window.scrollTo(0, localStorage.getItem('scrollPosition'));
+        } catch (err) {
+            console.log(err);
+        };
     };
 
     acceptFriend = async () => {
-        const userId = this.props.userId;
+        try {
+            const userId = this.props.userId;
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/accept-friend/${userId}`, {
-            method: 'PATCH',
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/accept-friend/${userId}`, {
+                method: 'PATCH',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+            });
+    
+            const resData = await res.json();
+            this.setState({ message: resData.message });
+    
+            if(this.state.message.includes('You Accepted')) {
+                this.setState({ accepted: true, declined: true });
+            };
 
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include',
-        });
-
-        const resData = await res.json();
-        this.setState({ message: resData.message });
-
-        if(this.state.message.includes('You Declined')) {
-            this.setState({ accepted: true, declined: true });
-        };
-        setTimeout(() => {
+            // when scrolls changes we save it in local storage, reload the page and then go again to the same scroll
+            localStorage.setItem('scrollPosition', window.scrollY);
             window.location.reload();
-        }, 500);
+            window.scrollTo(0, localStorage.getItem('scrollPosition'));
+        } catch (err) {
+            console.log(err);
+        };
     };
 
     render() {

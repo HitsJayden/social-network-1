@@ -904,3 +904,64 @@ exports.declineFriendRequest = async (req, res, next) => {
         };
     };
 };
+
+exports.settings = async (req, res, next) => {
+    try {
+        // checking if user is logged in
+        if(!req.session.isAuth) {
+            return res.status(401).json({ message: 'Login Is Needed' });
+        };
+
+        const token = req.cookies.token;
+        const weakToken = req.cookies.authCookie;
+
+        jwt.verify(token, process.env.TOKEN_SECRET);
+        jwt.verify(weakToken, process.env.WEAK_TOKEN_SECRET);
+
+        const email = req.body.email;
+        const password = req.body.password;
+        const confirmPassword = req.body.confirmPassword;
+        const newPassword = req.body.newPassword;
+        const name = req.body.name;
+        const surname = req.body.surname;
+        const nickname = req.body.nickname;
+        const emailRegex = /^([\w.%+-]+)@([\w-]+\.)+([\w]{2,})$/i;
+
+        if(!email.match(emailRegex)) {
+            return res.status(422).json({ message: 'Invalid Email' });
+        };
+
+        // checking if an user already signed up with this email
+        const userExists = await User.findOne({ email });
+
+        if(userExists) {
+            return res.status(409).json({ message: 'User ' + email + ' Already Exists' });
+        };
+
+        // name cannot be empty
+        if(name.length === 0) {
+            return res.status(422).json({ message: 'Please Enter Your Name' });
+        };
+
+        // surname cannot be empty
+        if(surname.length === 0) {
+            return res.status(422).json({ message: 'Please Enter Your Surname' });
+        };
+
+        // password >= 5
+        if(newPassword.length < 5) {
+            return res.status(422).json({ message: 'Password Needs To Be At Least 5 Characters' });
+        };
+
+        if(newPassword !== confirmPassword) {
+            return res.status(403).json({ message: 'Passwords Do Not Match' });
+        };
+
+    } catch (err) {
+        console.log(err);
+
+        if(!err.statusCode) {
+            err.statusCode = 500;
+        };
+    };
+};

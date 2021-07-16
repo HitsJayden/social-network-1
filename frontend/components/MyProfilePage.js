@@ -21,42 +21,42 @@ class MyProfilePage extends Component {
     }
 
     fetchData = async () => {
-        this.setState({ loading: true });
+        try {
+            this.setState({ loading: true });
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/my-profile`, {
-            method: 'GET',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include',
-        });
-
-        const resData = await res.json(); 
-
-        if(resData.err) {
-            console.log(resData.err);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/my-profile`, {
+                method: 'GET',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+            });
+    
+            const resData = await res.json(); 
+    
+            this.setState({ name: resData.name, surname: resData.surname, nickname: resData.nickname,
+                 loading: false, profileImage: resData.profileImage, posts: resData.userPosts.map(post => {
+                return (
+                    <div key={post._id}>
+                        <DeletePost postId={post._id} />
+                        <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
+    
+                        <figure>
+                            <img src={post.image} alt={post.content} />
+                        </figure>
+                        
+                        <p>{post.content}</p>
+                        <Like postId={post._id} />
+                        <p>{post.likes.likes} {post.likes.likes === 1 ? 'person' : 'people'} like this post</p>
+                        <Comment postId={post._id} />
+                    </div>
+                )
+            }) });
+        } catch (err) {
+            console.log(err);
         };
-
-        this.setState({ name: resData.name, surname: resData.surname, nickname: resData.nickname,
-             loading: false, profileImage: resData.profileImage, posts: resData.userPosts.map(post => {
-            return (
-                <div key={post._id}>
-                    <DeletePost postId={post._id} />
-                    <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
-
-                    <figure>
-                        <img src={post.image} alt={post.content} />
-                    </figure>
-                    
-                    <p>{post.content}</p>
-                    <Like postId={post._id} />
-                    <p>{post.likes.likes} {post.likes.likes === 1 ? 'person' : 'people'} like this post</p>
-                    <Comment postId={post._id} />
-                </div>
-            )
-        }) });
     };
 
     componentDidMount() {

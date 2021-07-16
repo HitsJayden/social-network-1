@@ -14,62 +14,58 @@ class CreatePost extends Component {
     };
 
     handleImage = async () => {
-        const imageFile = document.getElementById('image');
-        const files = imageFile.files;
-        const formData = new FormData;
-
-        // getting the first file that we find
-        formData.append('file', files[0]);
-
-        // appending cloudinary preset (folder where it will be saved the file)
-        formData.append('upload_preset', process.env.PRESET);
-
-        const res = await fetch(process.env.CLOUDINARY, {
-            method: 'POST',
-            body: formData,
-        });
-
-        const resData = await res.json();
-        console.log('res ', res)
-        console.log('resData ', resData)
-        console.log(resData.secure_url)
-
-        if(resData.err) {
-            console.log(resData.err);
+        try {
+            const imageFile = document.getElementById('image');
+            const files = imageFile.files;
+            const formData = new FormData;
+    
+            // getting the first file that we find
+            formData.append('file', files[0]);
+    
+            // appending cloudinary preset (folder where it will be saved the file)
+            formData.append('upload_preset', process.env.PRESET);
+    
+            const res = await fetch(process.env.CLOUDINARY, {
+                method: 'POST',
+                body: formData,
+            });
+    
+            const resData = await res.json();
+            this.setState({ image: resData.secure_url });
+        } catch (err) {
+            console.log(err);
         };
-
-        this.setState({ image: resData.secure_url });
     };
 
     fetchData = async e => {
-        this.setState({ loading: true });
+        try {
+            this.setState({ loading: true });
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/create-post`, {
-            method: 'PUT',
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/create-post`, {
+                method: 'PUT',
+    
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json',
+                },
+    
+                credentials: 'include',
+                body: JSON.stringify({
+                    content: this.state.content,
+                    image: this.state.image,
+                }),
+            });
+    
+            const resData = await res.json();
+            this.setState({ laoding: false, message: resData.message });
 
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json',
-            },
-
-            credentials: 'include',
-            body: JSON.stringify({
-                content: this.state.content,
-                image: this.state.image,
-            }),
-        });
-
-        const resData = await res.json();
-
-        if(resData.err) {
-            console.log(resData.err);
-        };
-
-        setTimeout(() => {
+            // when scrolls changes we save it in local storage, reload the page and then go again to the same scroll
+            localStorage.setItem('scrollPosition', window.scrollY);
             window.location.reload();
-        }, 500);
-
-        this.setState({ laoding: false, message: resData.message });
+            window.scrollTo(0, localStorage.getItem('scrollPosition'));
+        } catch (err) {
+            console.log(err);
+        };
     };
 
     render() {

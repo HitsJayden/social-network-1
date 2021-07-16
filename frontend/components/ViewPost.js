@@ -20,21 +20,25 @@ class ViewPost extends Component {
     }
 
     fetchData = async () => {
-        this.setState({ loading: true });
-        const postId = this.props.postId;
-
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/view-post/${postId}`, {
-            method: 'GET',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include',
-        });
-
-        const resData = await res.json(); 
-        this.setState({ loading: false, content: resData.content, likes: resData.likes, image: resData.image });
+        try {
+            this.setState({ loading: true });
+            const postId = this.props.postId;
+    
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/view-post/${postId}`, {
+                method: 'GET',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+            });
+    
+            const resData = await res.json(); 
+            this.setState({ loading: false, content: resData.content, likes: resData.likes, image: resData.image });
+        } catch (err) {
+            console.log(err);
+        };
     };
 
     componentDidMount() {

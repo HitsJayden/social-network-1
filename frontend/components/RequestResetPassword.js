@@ -14,29 +14,28 @@ class RequestResetPassword extends Component {
     };
 
     fetchData = async e => {
-        e.preventDefault();
-        this.setState({ loading: true });
-
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reset-password`, {
-            method: 'PATCH',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            body: JSON.stringify({
-                email: this.state.email,
-            }),
-            credentials: 'include',
-        });
-
-        const resData = await res.json();
-
-        if(resData.err) {
-            console.log(resData.err);
+        try {
+            e.preventDefault();
+            this.setState({ loading: true });
+    
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reset-password`, {
+                method: 'PATCH',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                body: JSON.stringify({
+                    email: this.state.email,
+                }),
+                credentials: 'include',
+            });
+    
+            const resData = await res.json();
+            this.setState({ message: resData.message, loading: false });
+        } catch (err) {
+            console.log(err);
         };
-
-        this.setState({ message: resData.message, loading: false });
     };
 
     render() {

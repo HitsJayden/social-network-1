@@ -6,23 +6,29 @@ class DeletePost extends Component {
     };
 
     deletePost = async () => {
-        const postId = this.props.postId;
+        try {
+            const postId = this.props.postId;
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/delete-post/${postId}`, {
-            method: 'DELETE',
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/delete-post/${postId}`, {
+                method: 'DELETE',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+            });
+    
+            const resData = await res.json(); 
+            this.setState({ message: resData.message });
 
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include',
-        });
-
-        const resData = await res.json(); 
-        this.setState({ message: resData.message });
-        setTimeout(() => {
+            // when scrolls changes we save it in local storage, reload the page and then go again to the same scroll
+            localStorage.setItem('scrollPosition', window.scrollY);
             window.location.reload();
-        }, 500);
+            window.scrollTo(0, localStorage.getItem('scrollPosition'));
+        } catch (err) {
+            console.log(err);
+        };
     };
 
     render() {

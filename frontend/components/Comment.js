@@ -10,53 +10,53 @@ class Comment extends Component {
     };
 
     totalComments = async () => {
-        const postId = this.props.postId;
+        try {
+            const postId = this.props.postId;
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/load-comments/${postId}`, {
-            method: 'GET',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include',
-        });
-
-        const resData = await res.json(); 
-
-        if(resData.err) {
-            console.log(resData.err);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/load-comments/${postId}`, {
+                method: 'GET',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+            });
+    
+            const resData = await res.json(); 
+            this.setState({ totalComments: resData.totalComments });
+        } catch (err) {
+            console.log(err);
         };
-
-        this.setState({ totalComments: resData.totalComments });
     };
 
     fetchData = async () => {
-        const postId = this.props.postId;
+        try {
+            const postId = this.props.postId;
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/comment/${postId}`, {
-            method: 'PUT',
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/comment/${postId}`, {
+                method: 'PUT',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    content: this.state.content,
+                })
+            });
+    
+            const resData = await res.json();
+            this.setState({ message: resData.message });
 
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                content: this.state.content,
-            })
-        });
-
-        const resData = await res.json();
-        
-        if(resData.err) {
-            console.log(resData.err);
-        };
-
-        this.setState({ message: resData.message });
-        setTimeout(() => {
+            // when scrolls changes we save it in local storage, reload the page and then go again to the same scroll
+            localStorage.setItem('scrollPosition', window.scrollY);
             window.location.reload();
-        }, 500);
+            window.scrollTo(0, localStorage.getItem('scrollPosition'));
+        } catch (err) {
+            console.log(err);
+        };
     };
 
     handleChange = e => {

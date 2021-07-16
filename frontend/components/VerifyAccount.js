@@ -14,48 +14,47 @@ class VerifyAccount extends Component {
     };
 
     fetchData = async e => {
-        e.preventDefault();
-
-        this.setState({ loading: true });
-
-        const userId = this.props.userId;
-        const tokenVerifyEmail = this.props.tokenVerifyEmail;
-
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-account/${encodeURIComponent(tokenVerifyEmail)}/${userId}`, {
-            method: 'PATCH',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-
-            credentials: 'include',
-            body: JSON.stringify({
-                password: this.state.password,
-            })
-        });
-
-        const resData = await res.json();
-
-        this.setState({ message: resData.message, loading: false });
-
-        if(resData.err) {
-            console.log(resData.err);
-        }
-
-        if(this.state.message === 'Sorry, The Account Was Deleted' || 
-        this.state.message === 'Sorry, Something Went Wrong. Please Signup Again, You Are Being Redirected To The Sign Up Page') {
-            setTimeout(() => {
-                window.location.replace('/auth/signup');
-            }, 2000);
-        }
-
-        if(this.state.message === 'Thank You For Verifying Your Account, You Are Being Redirected To The Login Page') {
-            setTimeout(() => {
-                window.location.replace('/auth/login');
-            }, 2000);
-        }
-    }
+        try {
+            e.preventDefault();
+            this.setState({ loading: true });
+    
+            const userId = this.props.userId;
+            const tokenVerifyEmail = this.props.tokenVerifyEmail;
+    
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/verify-account/${encodeURIComponent(tokenVerifyEmail)}/${userId}`, {
+                method: 'PATCH',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+    
+                credentials: 'include',
+                body: JSON.stringify({
+                    password: this.state.password,
+                })
+            });
+    
+            const resData = await res.json();
+    
+            this.setState({ message: resData.message, loading: false });
+    
+            if(this.state.message === 'Sorry, The Account Was Deleted' || 
+            this.state.message === 'Sorry, Something Went Wrong. Please Signup Again, You Are Being Redirected To The Sign Up Page') {
+                setTimeout(() => {
+                    window.location.replace('/auth/signup');
+                }, 2000);
+            }
+    
+            if(this.state.message === 'Thank You For Verifying Your Account, You Are Being Redirected To The Login Page') {
+                setTimeout(() => {
+                    window.location.replace('/auth/login');
+                }, 2000);
+            };
+        } catch (err) {
+            console.log(err);
+        };
+    };
 
     render() {
         return(

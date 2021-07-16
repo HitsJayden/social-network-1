@@ -28,39 +28,40 @@ class Login extends Component {
     };
 
     fetchData = async () => {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
-            method: 'POST',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-
-            credentials: 'include',
-            body: JSON.stringify({
-                email: this.state.email,
-                password: this.state.password,
-            }),
-        });
-
-        const resData = await res.json(); 
-        this.setState({ message: resData.message, loading: false });
-
-        if(resData.err) {
-            console.log(resData.err);
-        };
-
-        // we only want to show the user one of these messages
-        if(resData.message !== 'Invalid Password, Please Try Again Or Request A Reset Password' && 
-        resData.message !== 'There Is No Account In Our Database With The Following Email: ' + this.state.email &&
-        resData.message !== 'Please Verify Your Account By Checking Your Email' && resData.message !== 'Successful Login, You Are Being Redirected To The Home') {
-            this.setState({ message: null });
-        };
-
-        if(resData.message === 'Successful Login, You Are Being Redirected To The Home') {
-            setTimeout(() => {
-                window.location.replace('/');
-            }, 2000);
+        try {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+                method: 'POST',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+    
+                credentials: 'include',
+                body: JSON.stringify({
+                    email: this.state.email,
+                    password: this.state.password,
+                }),
+            });
+    
+            const resData = await res.json(); 
+            this.setState({ message: resData.message, loading: false });
+    
+            // we only want to show the user one of these messages
+            if(resData.message !== 'Invalid Password, Please Try Again Or Request A Reset Password' && 
+            resData.message !== 'There Is No Account In Our Database With The Following Email: ' + this.state.email &&
+            resData.message !== 'Please Verify Your Account By Checking Your Email' && 
+            resData.message !== 'Successful Login, You Are Being Redirected To The Home') {
+                this.setState({ message: null });
+            };
+    
+            if(resData.message === 'Successful Login, You Are Being Redirected To The Home') {
+                setTimeout(() => {
+                    window.location.replace('/');
+                }, 2000);
+            };
+        } catch (err) {
+            console.log(err);
         };
     };
 

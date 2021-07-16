@@ -15,48 +15,47 @@ class RequestPasswordPage extends Component {
     };
 
     fetchData = async e => {
-        e.preventDefault();
-        this.setState({ loading: true });
-
-        const resetToken = this.props.resetToken;
-        const userId = this.props.userId
-
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reset-password-form/${encodeURIComponent(resetToken)}/${userId}`, {
-            method: 'PATCH',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-
-            credentials: 'include',
-            body: JSON.stringify({
-                password: this.state.password,
-                confirmPassword: this.state.confirmPassword,
-            })
-        });
-
-        const resData = await res.json();
-
-        if(resData.err) {
-            console.log(resData.err);
-        };
-
-        this.setState({ loading: false, message: resData.message });
-
-        // redirecting to login page if no errors are found
-        if(this.state.message === 'You Have Changed Your Password, You Are Being Redirected To The Login Page') {
-            setTimeout(() => {
-                window.location.replace('/auth/login');
-            }, 2000);
-        };
-
-        // redirecting to reset password page in case of errors
-        if(this.state.message === 'Sorry, We Could Not Find An Account, Please Request Another Password Reset. You Are Being Redirected To The Page' ||
-        this.state.message === 'Forbidden! Please Request Another Password Reset, You Are Being Redirected To The page') {
-            setTimeout(() => {
-                window.location.replace('/reset-password');
-            }, 2000);
+        try {
+            e.preventDefault();
+            this.setState({ loading: true });
+    
+            const resetToken = this.props.resetToken;
+            const userId = this.props.userId
+    
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/reset-password-form/${encodeURIComponent(resetToken)}/${userId}`, {
+                method: 'PATCH',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+    
+                credentials: 'include',
+                body: JSON.stringify({
+                    password: this.state.password,
+                    confirmPassword: this.state.confirmPassword,
+                })
+            });
+    
+            const resData = await res.json();    
+            this.setState({ loading: false, message: resData.message });
+    
+            // redirecting to login page if no errors are found
+            if(this.state.message === 'You Have Changed Your Password, You Are Being Redirected To The Login Page') {
+                setTimeout(() => {
+                    window.location.replace('/auth/login');
+                }, 2000);
+            };
+    
+            // redirecting to reset password page in case of errors
+            if(this.state.message === 'Sorry, We Could Not Find An Account, Please Request Another Password Reset. You Are Being Redirected To The Page' ||
+            this.state.message === 'Forbidden! Please Request Another Password Reset, You Are Being Redirected To The page') {
+                setTimeout(() => {
+                    window.location.replace('/reset-password');
+                }, 2000);
+            };
+        } catch (err) {
+            console.log(err);
         };
     };
 

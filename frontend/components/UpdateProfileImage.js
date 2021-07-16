@@ -10,52 +10,51 @@ class UpdateProfileImage extends Component {
     };
 
     handleImage = async () => {
-        const imageFile = document.getElementById('image');
-        const files = imageFile.files;
-        const formData = new FormData();
-
-        // getting first file that we find
-        formData.append('file', files[0]);
-
-        // appending cloudinary preset (folder where it will be stored the file)
-        formData.append('upload_preset', process.env.PRESET);
-
-        const res = await fetch(process.env.CLOUDINARY, {
-            method: 'POST',
-            body: formData,
-        });
-
-        const resData = await res.json();
-        this.setState({ profileImage: resData.secure_url, loading: false });
-
-        if(resData.err) {
-            console.log(resData.err);
+        try {
+            const imageFile = document.getElementById('image');
+            const files = imageFile.files;
+            const formData = new FormData();
+    
+            // getting first file that we find
+            formData.append('file', files[0]);
+    
+            // appending cloudinary preset (folder where it will be stored the file)
+            formData.append('upload_preset', process.env.PRESET);
+    
+            const res = await fetch(process.env.CLOUDINARY, {
+                method: 'POST',
+                body: formData,
+            });
+    
+            const resData = await res.json();
+            this.setState({ profileImage: resData.secure_url, loading: false });
+        } catch (err) {
+            console.log(err);
         };
     };
 
     fetchData = async () => {
-        this.setState({ loading: true });
+        try {
+            this.setState({ loading: true });
 
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/load-profile-image`, {
-            method: 'PATCH',
-
-            headers: {
-                'Content-Type': 'application/json',
-                'Accept': 'application/json',
-            },
-            credentials: 'include',
-            body: JSON.stringify({
-                changeImage: this.state.profileImage,
-            })
-        });
-
-        const resData = await res.json();
-
-        if(resData.err) {
-            console.log(resData.err);
+            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/load-profile-image`, {
+                method: 'PATCH',
+    
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify({
+                    changeImage: this.state.profileImage,
+                })
+            });
+    
+            const resData = await res.json();
+            this.setState({ message: resData.message, loading: false, });
+        } catch (err) {
+            console.log(err);
         };
-
-        this.setState({ message: resData.message, loading: false, });
     };
 
     render() {
