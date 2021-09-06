@@ -9,7 +9,7 @@ class Like extends Component {
             localStorage.setItem('scrollPosition', window.scrollY);
             window.location.reload();
             window.scrollTo(0, localStorage.getItem('scrollPosition'));
-
+            
             const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/like/${postId}`, {
                 method: 'PATCH',
     
@@ -19,8 +19,8 @@ class Like extends Component {
                 },
                 credentials: 'include',
             });
-    
             await res.json();
+
         } catch (err) {
             console.log(err);
         };

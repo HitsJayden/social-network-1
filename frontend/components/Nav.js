@@ -5,11 +5,12 @@ import cookie from 'react-cookies';
 import Logout from '../components/Logout';
 import { FaCogs } from 'react-icons/fa';
 import Notifications from '../components/Notifications';
+import NavDiv from './styles/NavStyle';
 
 class Nav extends Component {
     render() {
         return(
-            <>
+            <NavDiv>
 
             {cookie.load('authCookie') && <Link href="/"><button>Home</button></Link>}
             {cookie.load('authCookie') && <Link href="/auth/my-profile"><button>Profile</button></Link>}
@@ -19,7 +20,7 @@ class Nav extends Component {
             {cookie.load('authCookie') &&  <Link href="/auth/settings"><button><FaCogs /></button></Link>}
             {cookie.load('authCookie') && <Logout />}
 
-            </>
+            </NavDiv>
         )
     }
 };

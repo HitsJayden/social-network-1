@@ -7,6 +7,9 @@ import Comment from './Comment';
 import Header from './Header';
 import Like from './Like';
 
+import HomePageDiv from './styles/HomePageStyle';
+import PostDiv from './styles/PostStyle';
+
 class HomePage extends Component {
     constructor(props) {
         super(props)
@@ -36,9 +39,9 @@ class HomePage extends Component {
             });
             const resData = await res.json();
     
-            this.setState({ loading: false, posts: resData.posts.map(post => {
+            this.setState({ loading: false, posts: resData.posts.map(post => { 
                 return(
-                    <div key={post._id}>
+                    <PostDiv key={post._id}>
                         <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
     
                         {post.image && (
@@ -48,10 +51,10 @@ class HomePage extends Component {
                         )}
                         
                         <Link href={`/auth/view-post/${post._id}`}><p>{post.content}</p></Link>
-                        <Like postId={post._id} />
                         <p>{post.likes.likes} {post.likes.likes === 1 ? 'person' : 'people'} like this post</p>
+                        <Like postId={post._id} />
                         <Comment postId={post._id} />
-                    </div>
+                    </PostDiv>
                 )
             }) });
         } catch (err) {
@@ -60,26 +63,30 @@ class HomePage extends Component {
     };
 
     componentDidMount() {
-        this.fetchData();
-    }
+        if(cookie.load('authCookie')) {
+            this.fetchData();
+        };
+    };
 
     render() {
         return(
             <>
-
             <Header />
 
-            {this.state.loading && <h1>Loading...</h1>}
+            <HomePageDiv>
 
-            {cookie.load('authCookie') && !this.state.loading && <CreatePost />}
+                {this.state.loading && <h1>Loading...</h1>}
 
-            {cookie.load('authCookie') && !this.state.loading && this.state.posts}
+                {cookie.load('authCookie') && !this.state.loading && <CreatePost />}
 
-            {!cookie.load('authCookie') && !this.state.loading && <h1>You Need To Login In Order To See This Page</h1>}
+                {cookie.load('authCookie') && !this.state.loading && this.state.posts}
 
+                {!cookie.load('authCookie') && <h1>You Need To Login In Order To See This Page</h1>}
+
+            </HomePageDiv>
             </>
-        )
-    }
+        );
+    };
 };
 
 export default HomePage;

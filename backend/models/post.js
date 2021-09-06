@@ -36,6 +36,18 @@ const postSchema = new Schema({
             ref: 'User',
             required: false,
         },
+        name: {
+            type: String,
+            required: false,
+        },
+        surname: {
+            type: String,
+            required: false,
+        },
+        nickname: {
+            type: String,
+            required: false,
+        }
     }],
 
     totalComments: {

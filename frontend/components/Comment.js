@@ -2,12 +2,20 @@ import React, { Component } from 'react';
 
 import LoadComments from './LoadComments';
 
+import CommentDiv from './styles/CommentStyle';
+import TotalCommentDiv from './styles/TotalCommentDiv';
+
 class Comment extends Component {
     state = {
         message: null,
         content: '',
         totalComments: 0,
+        comment: false,
     };
+
+    comment = () => {
+        this.setState({ comment: !this.state.comment })
+    }
 
     totalComments = async () => {
         try {
@@ -69,15 +77,19 @@ class Comment extends Component {
 
     render() {
         return(
-            <>
-            <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" 
-            cols="10" rows="5"></textarea>
+            <TotalCommentDiv>
             {this.state.message && <h1>{this.state.message}</h1>}
-            <button onClick={this.fetchData}>Submit</button>
-            <p>There {this.state.totalComments > 1 || this.state.totalComments === 0 ? 
+            <button onClick={this.comment}>Comment</button>
+
+            {this.state.comment ? <CommentDiv>
+                <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" 
+                cols="10" rows="5"></textarea>
+                <button onClick={this.fetchData}>Submit</button></CommentDiv> : ''}
+
+            <p>There {this.state.totalComments > 1 || this.state.totalComments === 0 ?
             'Are' : 'Is'} {this.state.totalComments} Comment{this.state.totalComments > 1 ? 's': ''} On This Post</p>
             <LoadComments totalComments={this.state.totalComments} postId={this.props.postId} />
-            </>
+            </TotalCommentDiv>
         )
     }
 }

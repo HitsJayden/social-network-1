@@ -86,7 +86,9 @@ class CreatePost extends Component {
             </label>
 
             {this.state.image && (
-                <img src={this.state.image} alt={this.state.content} />
+                <figure>
+                    <img src={this.state.image} alt={this.state.content} />
+                </figure>
             )}
 
             <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" cols="100" rows="15"></textarea>

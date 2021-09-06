@@ -35,7 +35,7 @@ class DeletePost extends Component {
         return(
             <>
             <h1>{this.state.message}</h1>
-            <button onClick={this.deletePost} aria-label="delete post">X</button>
+            <button class="delete-post" onClick={this.deletePost} aria-label="delete post">X</button>
             </>
         )
     }

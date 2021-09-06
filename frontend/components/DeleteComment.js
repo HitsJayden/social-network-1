@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import cookie from 'react-cookies';
 
+import { FaTrashAlt } from 'react-icons/fa';
+
 class DeleteComment extends Component {
     state = {
         message: null,
@@ -38,7 +40,7 @@ class DeleteComment extends Component {
             <>
             <h1>{this.state.message}</h1>
             {cookie.load('userId').toString() === this.props.userId.toString() && 
-                <button onClick={this.deleteComment} aria-label="delete comment">X</button>
+                <button class="delete-comment" onClick={this.deleteComment} aria-label="delete comment"><FaTrashAlt /></button>
             }
             </>
         )

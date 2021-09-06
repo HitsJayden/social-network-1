@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 
 import DeleteComment from './DeleteComment';
 
+import LoadCommentsDiv from './styles/LoadCommentsStyle';
+
 class LoadComments extends Component {
     constructor(props) {
         super(props) 
@@ -10,6 +12,9 @@ class LoadComments extends Component {
             message: null,
             content: '',
             comments: [],
+            name: '',
+            surname: '',
+            nickname: '',
             loadComments: false, // this will be used in order to don't show the button load comment once clicked
         };
 
@@ -32,12 +37,13 @@ class LoadComments extends Component {
     
             const resData = await res.json(); 
     
-            this.setState({ loadComments: true, comments: resData.comments.map(comment => {
+            this.setState({ loadComments: true ,comments: resData.comments.map(comment => {
                 return (
-                    <div key={comment._id}>
-                        <p key={comment._id}>{comment.content}</p>
+                    <LoadCommentsDiv key={comment._id}>
                         <DeleteComment postId={this.props.postId} userId={comment.userId} commentId={comment._id} />
-                    </div>
+                        <p>{comment.name} {comment.surname} <b>{comment.nickname}</b></p>
+                        <p key={comment._id}>{comment.content}</p>
+                    </LoadCommentsDiv>
                 );
             }) });
         } catch (err) {

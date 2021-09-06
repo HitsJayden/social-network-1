@@ -359,7 +359,7 @@ exports.homePage = async (req, res, next) => {
         }); 
 
         const posts = await Post.find({ userId: userFriends });
-        return res.status(200).json({ message: 'Posts Fetched', posts });        
+        return res.status(200).json({ message: 'Posts Fetched', posts });
 
     } catch (err) {
         console.log(err);
@@ -467,8 +467,11 @@ exports.comments = async (req, res, next) => {
         // assigning user id to the comment
         const userId = req.session.user._id;
 
+        // finding the user so that we can show name, surname and nickname when another user loads the comments
+        const user = await User.findById(userId);
+
         // pushing into post comment
-        post.comments.push({ content, userId });
+        post.comments.push({ content, userId, name: user.name, surname: user.surname, nickname: user.nickname });
         
         // if there is no comment we need to assign 0 as value otherwise validation will fail
         if(post.totalComments === undefined) {
