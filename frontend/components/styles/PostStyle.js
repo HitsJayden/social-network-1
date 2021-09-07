@@ -15,19 +15,24 @@ const PostDiv = styled.div`
     }
 
     .delete-post {
-        float: right;
-        background-color: red;
-        border: none;
         border-radius: 50%;
+        padding: 5px 8px;
+        color: #194351;
+        background-color: lightblue;
+        box-shadow: 0 0 .5rem gray;
+        cursor: pointer;
+        border: none;
+        float: right;
     }
 
     .delete-comment {
         border-radius: 50%;
         padding: 5px 8px;
-        color: gray;
+        color: #194351;
         background-color: lightblue;
         box-shadow: 0 0 .5rem gray;
         margin: -.3rem -1rem;
+        cursor: pointer;
     }
 `;
 

@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 
+import { FaTrashAlt } from 'react-icons/fa';
+
 class DeletePost extends Component {
     state = {
         message: null,
@@ -35,7 +37,7 @@ class DeletePost extends Component {
         return(
             <>
             <h1>{this.state.message}</h1>
-            <button class="delete-post" onClick={this.deletePost} aria-label="delete post">X</button>
+            <button class="delete-post" onClick={this.deletePost} aria-label="delete post"><FaTrashAlt /></button>
             </>
         )
     }

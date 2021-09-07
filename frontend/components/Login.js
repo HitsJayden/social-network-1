@@ -51,7 +51,8 @@ class Login extends Component {
             if(resData.message !== 'Invalid Password, Please Try Again Or Request A Reset Password' && 
             resData.message !== 'There Is No Account In Our Database With The Following Email: ' + this.state.email &&
             resData.message !== 'Please Verify Your Account By Checking Your Email' && 
-            resData.message !== 'Successful Login, You Are Being Redirected To The Home') {
+            resData.message !=='Successful Login, You Are Being Redirected To The Home' && 
+            resData.message !== 'Invalid Password, Please Try Again Or Request A Reset Password') {
                 this.setState({ message: null });
             };
     

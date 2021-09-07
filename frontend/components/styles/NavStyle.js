@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const NavDiv = styled.div`
-    background-color: blue;
+    background-color: lightblue;
     padding: 1rem;
     position: fixed;
     width: 100%;
@@ -11,8 +11,12 @@ const NavDiv = styled.div`
     button {
         padding: .5rem;
         cursor: pointer;
-        background-color: white;
+        background-color: lightblue;
+        color: #194351;
         border: none;   
+        border-radius: 50%;
+        padding: 5px 8px;
+        box-shadow: 0 0 .3rem gray;
     }
 `;
 

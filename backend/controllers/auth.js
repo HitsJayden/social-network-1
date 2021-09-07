@@ -413,7 +413,7 @@ exports.like = async (req, res, next) => {
             // if the user that likes the post is the same of the one that created the post we won't send a notification
             if(userPostId.toString() !== userId.toString()) {
                 userPost.notifications.push({
-                    message: user.name + ' Liked Your Post ' + post.content.slice(0, 8),
+                    message: user.name.slice(0, 12) + ' Liked Your Post ' + post.content.slice(0, 8),
                     date: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
                     postId,
                 });
@@ -486,16 +486,13 @@ exports.comments = async (req, res, next) => {
         const userIdPost = post.userId;
         const userPost = await User.findById(userIdPost);
 
-        // finding the user that wrote the comment so that we can say who wrote the comment
-        const userCommentedId = post.comments.map(comment => {
-            return comment.userId
-        });
-        const userCommented = await User.findById(userCommentedId);
-        
+        console.log(post.userId)
+        console.log(userId)
+
         // if the user that comments is the same user that created the post we won't send a notification
-        if(post.userId.toString() !== userCommentedId.toString()) {
+        if(post.userId.toString() !== userId.toString()) {
             userPost.notifications.push({
-                message: userCommented.name + ' Commented Your Post ' + post.content.slice(0, 8),
+                message: user.name.slice(0, 12) + ' Commented Your Post ' + post.content.slice(0, 8),
                 date: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
                 postId,
             });

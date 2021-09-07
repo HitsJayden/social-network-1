@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import FormData from 'form-data';
 
+import CreatePostDiv from './styles/CreatePostStyle';
+
 class CreatePost extends Component {
     state = {
         loading: false,
@@ -70,31 +72,31 @@ class CreatePost extends Component {
 
     render() {
         return(
-            <>
-            {this.state.message && <h1>{this.state.message}</h1>}
+            <CreatePostDiv>
+                {this.state.message && <h1>{this.state.message}</h1>}
 
-            <label htmlFor="image">
-                Image
+                <label htmlFor="image">
+                    Image
 
-                <input
-                    name="image"
-                    id="image"
-                    onChange={this.handleImage}
-                    placeholder="Upload An Image"
-                    type="file"
-                />
-            </label>
+                    <input
+                        name="image"
+                        id="image"
+                        onChange={this.handleImage}
+                        placeholder="Upload An Image"
+                        type="file"
+                    />
+                </label>
 
-            {this.state.image && (
-                <figure>
-                    <img src={this.state.image} alt={this.state.content} />
-                </figure>
-            )}
+                {this.state.image && (
+                    <figure>
+                        <img src={this.state.image} alt={this.state.content} />
+                    </figure>
+                )}
 
-            <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" cols="100" rows="15"></textarea>
+                <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" cols="100" rows="15"></textarea>
 
-            <button onClick={this.fetchData}>Submit</button>
-            </>
+                <button onClick={this.fetchData}>Submit</button>
+            </CreatePostDiv>
         )
     }
 };

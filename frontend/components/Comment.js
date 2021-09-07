@@ -3,7 +3,6 @@ import React, { Component } from 'react';
 import LoadComments from './LoadComments';
 
 import CommentDiv from './styles/CommentStyle';
-import TotalCommentDiv from './styles/TotalCommentDiv';
 
 class Comment extends Component {
     state = {
@@ -77,7 +76,7 @@ class Comment extends Component {
 
     render() {
         return(
-            <TotalCommentDiv>
+            <>
             {this.state.message && <h1>{this.state.message}</h1>}
             <button onClick={this.comment}>Comment</button>
 
@@ -89,7 +88,7 @@ class Comment extends Component {
             <p>There {this.state.totalComments > 1 || this.state.totalComments === 0 ?
             'Are' : 'Is'} {this.state.totalComments} Comment{this.state.totalComments > 1 ? 's': ''} On This Post</p>
             <LoadComments totalComments={this.state.totalComments} postId={this.props.postId} />
-            </TotalCommentDiv>
+            </>
         )
     }
 }

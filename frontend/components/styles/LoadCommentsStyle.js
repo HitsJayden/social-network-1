@@ -17,7 +17,6 @@ const LoadCommentsDiv = styled.div`
     button {
         float: right;
         margin-right: 1rem;
-        background-color: red;
         border: none;
     }
 `;

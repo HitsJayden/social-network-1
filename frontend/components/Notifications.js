@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { FaBell } from 'react-icons/fa';
 import AcceptDeclineFriendRequest from './AcceptDeclineFriendRequest';
 
+import NotificationDiv from './styles/NotificationStyle';
+
 class Notifications extends Component {
     constructor(props) {
         super(props) 
@@ -37,16 +39,16 @@ class Notifications extends Component {
             this.setState({ notifications: resData.notifications.map(notification => {
                 return (
                     /* based on the type of notification we will give the user a different link */
-                    <div>
+                    <>
                         {notification.message.includes('Post') && <Link href={`/auth/view-post/${notification.postId}`}>
-                            <h1>{notification.message}</h1>
+                            <a><h1>{notification.message}</h1></a>
                         </Link> }
                         {notification.message.includes('Accepted Your Friend Request') && 
                         <Link href={`/auth/load-profile/${notification.userId}`}><h1>{notification.message}</h1></Link>}
                         {notification.message.includes('Sent You A Friend Request') ? <>
                             <h1>{notification.message}</h1>
                             <AcceptDeclineFriendRequest userId={notification.userId} /> </> : ''}
-                    </div>
+                    </>
                 )
             }) });
         } catch (err) {
@@ -62,11 +64,11 @@ class Notifications extends Component {
         return (
             <>
             <button onClick={this.notifications}><FaBell /></button>
-            {this.state.getNotifications && this.state.notifications}
+            {this.state.getNotifications && <NotificationDiv>{this.state.notifications}</NotificationDiv>}
             {this.state.getNotifications && this.state.notifications === [] && (
-                <div>
+                <NotificationDiv>
                     <h1>You Don't Have Any Notifications</h1>
-                </div>
+                </NotificationDiv>
             )}
             </>
         )
