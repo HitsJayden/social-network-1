@@ -93,7 +93,7 @@ class CreatePost extends Component {
                 )}
 
                 <div>
-                    <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" rows="10"></textarea>
+                    <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" rows="5"></textarea>
 
                     <button onClick={this.fetchData}>Submit</button>
                 </div>

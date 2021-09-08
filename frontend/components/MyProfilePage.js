@@ -77,17 +77,17 @@ class MyProfilePage extends Component {
 
             {!this.state.loading && (
                 <>
-                <CreatePost />
+                <h1>{this.state.name} {this.state.surname} {this.state.nickname === '' ? '' : '(' + this.state.nickname + ')'}</h1>
 
-                <UpdateProfileImage />
-                
+                {this.state.posts}
+
                 <figure>
                     <img class="profile-img" src={this.state.profileImage} />
                 </figure>
 
-                <h1>{this.state.name} {this.state.surname} {this.state.nickname === '' ? '' : '(' + this.state.nickname + ')'}</h1>
+                <UpdateProfileImage />
 
-                {this.state.posts}
+                <CreatePost />
                 </>
             )}
             </MyProfilePageDiv>
