@@ -31,7 +31,7 @@ const PostDiv = styled.div`
         color: #194351;
         background-color: lightblue;
         box-shadow: 0 0 .5rem gray;
-        margin: -.3rem -1rem;
+        margin: -.2rem -1rem;
         cursor: pointer;
     }
 `;

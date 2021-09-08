@@ -7,13 +7,14 @@ const NotificationDiv = styled.div`
     background-color: lightblue;
     color: #194351;
     position: absolute;
+    border: 1px solid gray;
 
     h1 {
         font-size: 1rem;
         padding: .5rem;
     }
 
-    a:hover {
+    a:hover, a:focus {
         color: black;
     }
 `;

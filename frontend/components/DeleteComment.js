@@ -38,7 +38,7 @@ class DeleteComment extends Component {
     render() {
         return(
             <>
-            <h1>{this.state.message}</h1>
+            <h1 class="message">{this.state.message}</h1>
             {cookie.load('userId').toString() === this.props.userId.toString() && 
                 <button class="delete-comment" onClick={this.deleteComment} aria-label="delete comment"><FaTrashAlt /></button>
             }

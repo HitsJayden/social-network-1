@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import FormData from 'form-data';
 
+import UpdateProfileImageDiv from './styles/UpdateProfileImageStyle';
+
 class UpdateProfileImage extends Component {
     state = {
         profileImage: '',
@@ -9,16 +11,15 @@ class UpdateProfileImage extends Component {
         loading: false,
     };
 
-    handleImage = async () => {
+    handleImage = async (e) => {
         try {
-            const imageFile = document.getElementById('image');
-            const files = imageFile.files;
+            const files = e.target.files;
             const formData = new FormData();
     
-            // getting first file that we find
-            formData.append('file', files[0]);
+            // getting the first file that we find
+            formData.append('file', files[0]); console.log(files[0])
     
-            // appending cloudinary preset (folder where it will be stored the file)
+            // appending cloudinary preset (folder where it will be saved the file)
             formData.append('upload_preset', process.env.PRESET);
     
             const res = await fetch(process.env.CLOUDINARY, {
@@ -27,7 +28,7 @@ class UpdateProfileImage extends Component {
             });
     
             const resData = await res.json();
-            this.setState({ profileImage: resData.secure_url, loading: false });
+            this.setState({ profileImage: resData.secure_url });
         } catch (err) {
             console.log(err);
         };
@@ -59,7 +60,7 @@ class UpdateProfileImage extends Component {
 
     render() {
         return(
-            <div>
+            <UpdateProfileImageDiv>
                 {this.state.message && <h1>{this.state.message}</h1>}
 
                 <label htmlFor="changeImage">
@@ -81,7 +82,7 @@ class UpdateProfileImage extends Component {
                 )}
 
                 <button onClick={this.fetchData}>Upload{this.state.loading ? 'ing' : ''} Image!</button>
-            </div>
+            </UpdateProfileImageDiv>
         )
     }
 }

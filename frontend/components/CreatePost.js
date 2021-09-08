@@ -15,11 +15,10 @@ class CreatePost extends Component {
         this.setState({ content: e.target.value });
     };
 
-    handleImage = async () => {
+    handleImage = async (e) => {
         try {
-            const imageFile = document.getElementById('image');
-            const files = imageFile.files;
-            const formData = new FormData;
+            const files = e.target.files;
+            const formData = new FormData();
     
             // getting the first file that we find
             formData.append('file', files[0]);
@@ -59,7 +58,7 @@ class CreatePost extends Component {
             });
     
             const resData = await res.json();
-            this.setState({ laoding: false, message: resData.message });
+            this.setState({ loading: false, message: resData.message });
 
             // when scrolls changes we save it in local storage, reload the page and then go again to the same scroll
             localStorage.setItem('scrollPosition', window.scrollY);
@@ -93,9 +92,11 @@ class CreatePost extends Component {
                     </figure>
                 )}
 
-                <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" cols="100" rows="15"></textarea>
+                <div>
+                    <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" rows="10"></textarea>
 
-                <button onClick={this.fetchData}>Submit</button>
+                    <button onClick={this.fetchData}>Submit</button>
+                </div>
             </CreatePostDiv>
         )
     }

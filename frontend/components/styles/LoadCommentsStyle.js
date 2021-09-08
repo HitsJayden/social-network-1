@@ -19,6 +19,12 @@ const LoadCommentsDiv = styled.div`
         margin-right: 1rem;
         border: none;
     }
+
+    .message {
+        font-size: 1rem;
+        margin: 1rem;
+        text-align: center;
+    }
 `;
 
 export default LoadCommentsDiv;

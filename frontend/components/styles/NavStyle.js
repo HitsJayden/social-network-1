@@ -18,6 +18,11 @@ const NavDiv = styled.div`
         padding: 5px 8px;
         box-shadow: 0 0 .3rem gray;
     }
+
+    button:hover {
+        color: black;
+        background-color: #2F7D97;
+    }
 `;
 
 export default NavDiv;

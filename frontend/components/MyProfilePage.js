@@ -8,6 +8,7 @@ import CreatePost from './CreatePost';
 import DeletePost from './DeletePost';
 
 import PostDiv from './styles/PostStyle';
+import MyProfilePageDiv from './styles/MyProfilePageStyle';
 
 class MyProfilePage extends Component {
     constructor(props) {
@@ -70,16 +71,18 @@ class MyProfilePage extends Component {
             <>
             <Header />
 
+            <MyProfilePageDiv>
+
             {this.state.loading && <h1>Loading...</h1>}
 
             {!this.state.loading && (
                 <>
-                <UpdateProfileImage />
-
                 <CreatePost />
+
+                <UpdateProfileImage />
                 
                 <figure>
-                    <img src={this.state.profileImage} />
+                    <img class="profile-img" src={this.state.profileImage} />
                 </figure>
 
                 <h1>{this.state.name} {this.state.surname} {this.state.nickname === '' ? '' : '(' + this.state.nickname + ')'}</h1>
@@ -87,6 +90,7 @@ class MyProfilePage extends Component {
                 {this.state.posts}
                 </>
             )}
+            </MyProfilePageDiv>
             </>
         )
     }
