@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+  backend:
+    env_file:
+        "./backend/.env"
+    build:
+      context: ./backend
+      dockerfile: ./Dockerfile
+    image: "maurosorrentino/social-network-backend"
+    ports:
+      - "5000:5000"
+  frontend:
+    env_file:
+      "./frontend/.env"
+    build:
+      context: ./frontend
+      dockerfile: ./Dockerfile
+    image: "maurosorrentino/social-network-frontend"
+    ports:
+      - "3000:3000"
