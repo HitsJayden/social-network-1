@@ -675,11 +675,16 @@ exports.profilePage = async (req, res, next) => {
 
     // we will send these data so that in the profile page we can fetch all the posts and profile image of this user on the client side
     const userPosts = await Post.find({ userId });
-    const profileImage = user.profileImage;
+    let profileImage = user.profileImage;
     const name = user.name;
     const surname = user.surname;
     const nickname = user.nickname;
     const friends = user.friends;
+
+    if (!profileImage) {
+      profileImage = undefined;
+    }
+
     return res
       .status(200)
       .json({

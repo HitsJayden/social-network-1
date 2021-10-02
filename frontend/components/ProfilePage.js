@@ -18,7 +18,7 @@ class ProfilePage extends Component {
         this.state = {
             loading: false,
             posts: [],
-            profileImage: '',
+            profileImage: undefined,
             name: '',
             surname: '',
             nickname: '',
@@ -117,9 +117,14 @@ class ProfilePage extends Component {
 
                 {this.state.message && <h1>{this.state.message}</h1>}
 
-                <figure>
-                  <img className="profile-img" src={this.state.profileImage} />
-                </figure>
+                {this.state.profileImage && (
+                  <figure>
+                    <img
+                      className="profile-img"
+                      src={this.state.profileImage}
+                    />
+                  </figure>
+                )}
               </MyProfilePageDiv>
             )}
           </>

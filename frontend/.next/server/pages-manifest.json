@@ -4,5 +4,6 @@
   "/_error": "pages/_error.js",
   "/auth/login": "pages/auth/login.js",
   "/": "pages/index.js",
+  "/auth/my-profile": "pages/auth/my-profile.js",
   "/auth/load-profile/[userId]": "pages/auth/load-profile/[userId].js"
 }
