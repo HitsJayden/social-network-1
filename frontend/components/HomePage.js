@@ -42,7 +42,7 @@ class HomePage extends Component {
             this.setState({ loading: false, posts: resData.posts.map(post => { 
                 return(
                     <PostDiv key={post._id}>
-                        <h1>Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
+                        <h1 className="created">Created At: {post.createdAt.slice(0, 10)} At: {post.createdAt.slice(11, 16)}</h1>
     
                         {post.image && (
                             <figure>
@@ -81,7 +81,7 @@ class HomePage extends Component {
 
                 {cookie.load('authCookie') && !this.state.loading && this.state.posts}
 
-                {!cookie.load('authCookie') && <h1>You Need To Login In Order To See This Page</h1>}
+                {!cookie.load('authCookie') && <h1 id="message">You Need To Login In Order To See This Page</h1>}
 
             </HomePageDiv>
             </>

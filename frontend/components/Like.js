@@ -27,7 +27,7 @@ class Like extends Component {
     };
 
     render() {
-        return <button onClick={this.like}>like</button>
+        return <button id="like-comment" onClick={this.like}>like</button>
     }
 };
 

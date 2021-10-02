@@ -55,7 +55,7 @@ class LoadComments extends Component {
         return(
             <>
             {this.props.totalComments > 0 && !this.state.loadComments && (
-                <button onClick={this.fetchComments}>Load Comment{this.props.totalComments > 1 ? 's' : ''}</button>
+                <button id="like-comment" onClick={this.fetchComments}>Load Comment{this.props.totalComments > 1 ? 's' : ''}</button>
             )}
             {this.state.comments}
             </>

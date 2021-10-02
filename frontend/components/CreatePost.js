@@ -70,35 +70,42 @@ class CreatePost extends Component {
     };
 
     render() {
-        return(
-            <CreatePostDiv>
-                {this.state.message && <h1>{this.state.message}</h1>}
+        return (
+          <CreatePostDiv>
+            {this.state.message && <h1>{this.state.message}</h1>}
 
-                <label htmlFor="image">
-                    Image
+            <form encType="multipart/form-data">
+              <label htmlFor="image">
+                Upload An Image
+                <input
+                  name="image"
+                  onChange={this.handleImage}
+                  placeholder="Upload An Image"
+                  type="file"
+                  id="image"
+                />
+              </label>
+            </form>
 
-                    <input
-                        name="image"
-                        id="image"
-                        onChange={this.handleImage}
-                        placeholder="Upload An Image"
-                        type="file"
-                    />
-                </label>
+            {this.state.image && (
+              <figure>
+                <img src={this.state.image} alt={this.state.content} />
+              </figure>
+            )}
 
-                {this.state.image && (
-                    <figure>
-                        <img src={this.state.image} alt={this.state.content} />
-                    </figure>
-                )}
+            <div>
+              <textarea
+                onChange={this.handleChange}
+                value={this.state.content}
+                name="content"
+                placeholder="What Are You Thinking?"
+                rows="5"
+              ></textarea>
 
-                <div>
-                    <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" rows="5"></textarea>
-
-                    <button onClick={this.fetchData}>Submit</button>
-                </div>
-            </CreatePostDiv>
-        )
+              <button onClick={this.fetchData}>Submit</button>
+            </div>
+          </CreatePostDiv>
+        );
     }
 };
 

@@ -75,21 +75,43 @@ class Comment extends Component {
     };
 
     render() {
-        return(
-            <>
+        return (
+          <>
             {this.state.message && <h1>{this.state.message}</h1>}
-            <button onClick={this.comment}>Comment</button>
+            <button id="like-comment" onClick={this.comment}>
+              Comment
+            </button>
 
-            {this.state.comment ? <CommentDiv>
-                <textarea onChange={this.handleChange} value={this.state.content} name="content" placeholder="What Are You Thinking?" 
-                cols="10" rows="5"></textarea>
-                <button onClick={this.fetchData}>Submit</button></CommentDiv> : ''}
+            {this.state.comment ? (
+              <CommentDiv>
+                <textarea
+                  onChange={this.handleChange}
+                  value={this.state.content}
+                  name="content"
+                  placeholder="What Are You Thinking?"
+                  cols="10"
+                  rows="5"
+                ></textarea>
+                <button onClick={this.fetchData}>Submit</button>
+              </CommentDiv>
+            ) : (
+              ""
+            )}
 
-            <p>There {this.state.totalComments > 1 || this.state.totalComments === 0 ?
-            'Are' : 'Is'} {this.state.totalComments} Comment{this.state.totalComments > 1 ? 's': ''} On This Post</p>
-            <LoadComments totalComments={this.state.totalComments} postId={this.props.postId} />
-            </>
-        )
+            <p>
+              There{" "}
+              {this.state.totalComments > 1 || this.state.totalComments === 0
+                ? "Are"
+                : "Is"}{" "}
+              {this.state.totalComments} Comment
+              {this.state.totalComments > 1 ? "s" : ""} On This Post
+            </p>
+            <LoadComments
+              totalComments={this.state.totalComments}
+              postId={this.props.postId}
+            />
+          </>
+        );
     }
 }
 

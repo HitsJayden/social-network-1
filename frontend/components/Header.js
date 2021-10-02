@@ -1,9 +1,15 @@
-import React from 'react';
+import React from "react";
 
-import Nav from '../components/Nav';
-import Notifications from '../components/Notifications';
+import Nav from "../components/Nav";
+import Search from "../components/Search";
 
 const Header = () => {
-    return( <Nav /> )};
+  return (
+    <>
+      <Nav />
+      <Search />
+    </>
+  );
+};
 
 export default Header;

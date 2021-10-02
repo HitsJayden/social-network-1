@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 
 import Header from '../components/Header';
 
+import FormDiv from "./styles/FormStyle";
+
 class VerifyAccount extends Component {
     state = {
         loading: false,
@@ -57,37 +59,39 @@ class VerifyAccount extends Component {
     };
 
     render() {
-        return(
-            <>
-
+        return (
+          <>
             <Header />
 
-            {this.state.message && <h1>{this.state.message}</h1>}
+            <FormDiv>
+              {this.state.message && <h1>{this.state.message}</h1>}
 
-            <form onSubmit={this.fetchData}>
-                <fieldset aria-busy={this.state.loading} disabled={this.state.loading}>
+              <form onSubmit={this.fetchData}>
+                <fieldset
+                  aria-busy={this.state.loading}
+                  disabled={this.state.loading}
+                >
+                  <h1>Verify{this.state.loading ? "ing" : ""} Your Account</h1>
 
-                    <h1>Verify{this.state.loading ? 'ing' : ''} Your Account</h1>
+                  <label htmlFor="password">
+                    Password
+                    <input
+                      name="password"
+                      type="password"
+                      onChange={this.handleChange}
+                      value={this.state.password}
+                      placeholder="Please Enter Your Password"
+                    />
+                  </label>
 
-                    <label htmlFor="password">
-                        Password
-
-                        <input
-                            name="password"
-                            type="password"
-                            onChange={this.handleChange}
-                            value={this.state.password}
-                            placeholder="Please Enter Your Password"
-                        />
-                    </label>
-
-                    <button>Verify{this.state.loading ? 'ing' : ''} Your Account</button>
-
+                  <button>
+                    Verify{this.state.loading ? "ing" : ""} Your Account
+                  </button>
                 </fieldset>
-            </form>
-
-            </>
-        )
+              </form>
+            </FormDiv>
+          </>
+        );
     }
 }
 

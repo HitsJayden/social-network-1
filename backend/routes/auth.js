@@ -30,4 +30,7 @@ router.patch('/decline-friend/:userId', authController.declineFriendRequest);
 router.get('/notifications', authController.getNotifications);
 router.patch('/settings', authController.settings);
 
+// route for getting all the users
+router.get('/users', authController.searchUser);
+
 module.exports = router;

@@ -38,18 +38,42 @@ class Notifications extends Component {
     
             this.setState({ notifications: resData.notifications.map(notification => {
                 return (
-                    /* based on the type of notification we will give the user a different link */
-                    <>
-                        {notification.message.includes('Post') && <Link href={`/auth/view-post/${notification.postId}`}>
-                            <a><h1>{notification.message}</h1></a>
-                        </Link> }
-                        {notification.message.includes('Accepted Your Friend Request') && 
-                        <Link href={`/auth/load-profile/${notification.userId}`}><h1>{notification.message}</h1></Link>}
-                        {notification.message.includes('Sent You A Friend Request') ? <>
+                  /* based on the type of notification we will give the user a different link */
+                  <>
+                    {notification.message.includes("Post") && (
+                      <Link href={`/auth/view-post/${notification.postId}`}>
+                        <a>
+                          <h1>{notification.message}</h1>
+                        </a>
+                      </Link>
+                    )}
+                    {notification.message.includes(
+                      "Accepted Your Friend Request"
+                    ) && (
+                      <Link href={`/auth/load-profile/${notification.userId}`}>
+                        <h1>{notification.message}</h1>
+                      </Link>
+                    )}
+                    {notification.message.includes(
+                      "Sent You A Friend Request"
+                    ) ? (
+                      <>
+                        <Link
+                          href={`/auth/load-profile/${notification.userId}`}
+                        >
+                          <a>
                             <h1>{notification.message}</h1>
-                            <AcceptDeclineFriendRequest userId={notification.userId} /> </> : ''}
-                    </>
-                )
+                          </a>
+                        </Link>
+                        <AcceptDeclineFriendRequest
+                          userId={notification.userId}
+                        />{" "}
+                      </>
+                    ) : (
+                      ""
+                    )}
+                  </>
+                );
             }) });
         } catch (err) {
             console.log(err);
@@ -63,7 +87,7 @@ class Notifications extends Component {
     render() {
         return (
             <>
-            <button onClick={this.notifications}><FaBell /></button>
+            <button aria-label="notifications" onClick={this.notifications}><FaBell /></button>
             {this.state.getNotifications && <NotificationDiv>{this.state.notifications}</NotificationDiv>}
             {this.state.getNotifications && this.state.notifications === [] && (
                 <NotificationDiv>

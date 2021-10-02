@@ -4,6 +4,10 @@ import Like from './Like';
 import Comment from './Comment';
 import Header from './Header';
 
+import PostDiv from './styles/PostStyle';
+import DeletePost from './DeletePost';
+import LoadingH1 from './styles/LoadingH1';
+
 class ViewPost extends Component {
     constructor(props) {
         super(props)
@@ -11,7 +15,7 @@ class ViewPost extends Component {
         this.state = {
             loading: false,
             content: '',
-            image: null,
+            image: undefined,
             likes: 0,
             createdAt: '',
         };
@@ -35,7 +39,13 @@ class ViewPost extends Component {
             });
     
             const resData = await res.json(); 
-            this.setState({ loading: false, content: resData.content, likes: resData.likes, image: resData.image });
+            this.setState({
+              loading: false,
+              content: resData.content,
+              likes: resData.likes,
+              image: resData.image,
+              createdAt: resData.createdAt,
+            });
         } catch (err) {
             console.log(err);
         };
@@ -46,28 +56,37 @@ class ViewPost extends Component {
     };
 
     render() {
-        return ( 
-            <>
+        return (
+          <>
             <Header />
 
-            {this.state.loading && <h1>Loading...</h1>}
+            {this.state.loading && <LoadingH1>Loading...</LoadingH1>}
 
             {!this.state.loading && (
-                <div key={this.props.postId}>
-                    <h1>Created At: {this.state.createdAt.slice(0, 10)} At: {this.state.createdAt.slice(11, 16)}</h1>
-            
-                    <figure>
-                        <img src={this.state.image} alt={this.state.content} />
-                    </figure>
-                                
-                    <p>{this.state.content}</p>
-                    <Like postId={this.props.postId} />
-                    <p>{this.state.likes} {this.state.likes === 1 ? 'person' : 'people'} like this post</p>
-                    <Comment postId={this.props.postId} />
-                </div>
+              <PostDiv key={this.props.postId}>
+                <DeletePost postId={this.props.postId} />
+                <h1 className="created">
+                  Created At: {this.state.createdAt.slice(0, 10)} At:{" "}
+                  {this.state.createdAt.slice(11, 16)}
+                </h1>
+
+                {this.state.image && (
+                  <figure>
+                    <img src={this.state.image} alt={this.state.content} />
+                  </figure>
+                )}
+
+                <p>{this.state.content}</p>
+                <p>
+                  {this.state.likes}{" "}
+                  {this.state.likes === 1 ? "person" : "people"} like this post
+                </p>
+                <Like postId={this.props.postId} />
+                <Comment postId={this.props.postId} />
+              </PostDiv>
             )}
-            </>  
-        )
+          </>
+        );
     }
 }
 

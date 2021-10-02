@@ -17,7 +17,7 @@ class UpdateProfileImage extends Component {
             const formData = new FormData();
     
             // getting the first file that we find
-            formData.append('file', files[0]); console.log(files[0])
+            formData.append('file', files[0]);
     
             // appending cloudinary preset (folder where it will be saved the file)
             formData.append('upload_preset', process.env.PRESET);
@@ -59,31 +59,34 @@ class UpdateProfileImage extends Component {
     };
 
     render() {
-        return(
-            <UpdateProfileImageDiv>
-                {this.state.message && <h1>{this.state.message}</h1>}
+        return (
+          <UpdateProfileImageDiv>
+            {this.state.message && <h1>{this.state.message}</h1>}
 
-                <label htmlFor="changeImage">
-                    Change Image
+            <form encType="multipart/form-data">
+              <label htmlFor="changeImage">
+                Change Image
+                <input
+                  onChange={this.handleImage}
+                  name="changeImage"
+                  type="file"
+                  placeholder="Upload A Profile Image"
+                  id="changeImage"
+                />
+              </label>
 
-                    <input
-                        onChange={this.handleImage}
-                        name="changeImage"
-                        type="file"
-                        placeholder="Upload An Image"
-                        id="image"
-                    />
-                </label>
+              <button onClick={this.fetchData}>
+                Upload{this.state.loading ? "ing" : ""} Image!
+              </button>
+            </form>
 
-                {this.state.profileImage && (
-                    <figure>
-                        <img src={this.state.profileImage} alt="profile image" />
-                    </figure>
-                )}
-
-                <button onClick={this.fetchData}>Upload{this.state.loading ? 'ing' : ''} Image!</button>
-            </UpdateProfileImageDiv>
-        )
+            {this.state.profileImage && (
+              <figure>
+                <img src={this.state.profileImage} alt="profile image" />
+              </figure>
+            )}
+          </UpdateProfileImageDiv>
+        );
     }
 }
 
