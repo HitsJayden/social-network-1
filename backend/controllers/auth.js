@@ -861,6 +861,7 @@ exports.getNotifications = async (req, res, next) => {
     const userId = req.session.user._id;
     const user = await User.findById(userId);
     const notifications = user.notifications;
+
     return res
       .status(200)
       .json({ message: "Notifications Fetched", notifications });

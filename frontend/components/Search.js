@@ -31,7 +31,7 @@ class Search extends Component {
         }
       );
 
-      const resData = await res.json(); console.log(resData)
+      const resData = await res.json();
       this.setState({ users: resData.users });
     } catch (err) {
       console.log(err);

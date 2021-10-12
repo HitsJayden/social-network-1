@@ -118,6 +118,7 @@ app.use(
             httpOnly: true,
             maxAge: 3600000 * 24, // 24 hours
             secure: false,
+            domain: process.env.DOMAIN
         },
     }),
 );

@@ -34,7 +34,7 @@ class Notifications extends Component {
                 credentials: 'include',
             });
     
-            const resData = await res.json(); 
+            const resData = await res.json();
     
             this.setState({ notifications: resData.notifications.map(notification => {
                 return (
@@ -89,7 +89,7 @@ class Notifications extends Component {
             <>
             <button aria-label="notifications" onClick={this.notifications}><FaBell /></button>
             {this.state.getNotifications && <NotificationDiv>{this.state.notifications}</NotificationDiv>}
-            {this.state.getNotifications && this.state.notifications === [] && (
+            {this.state.notifications.length === 0 && this.state.getNotifications && (
                 <NotificationDiv>
                     <h1>You Don't Have Any Notifications</h1>
                 </NotificationDiv>
