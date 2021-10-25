@@ -1,16 +1,7 @@
 {
   "/_app": "pages/_app.js",
   "/_document": "pages/_document.js",
-  "/auth/load-profile/[userId]": "pages/auth/load-profile/[userId].js",
-  "/auth/login": "pages/auth/login.html",
-  "/auth/my-profile": "pages/auth/my-profile.html",
-  "/auth/settings": "pages/auth/settings.html",
-  "/auth/signup": "pages/auth/signup.html",
-  "/auth/verify-account/[tokenVerifyEmail]/[userId]": "pages/auth/verify-account/[tokenVerifyEmail]/[userId].html",
-  "/auth/view-post/[postId]": "pages/auth/view-post/[postId].html",
-  "/": "pages/index.html",
-  "/reset-password-form/[resetToken]/[userId]": "pages/reset-password-form/[resetToken]/[userId].html",
-  "/reset-password": "pages/reset-password.html",
   "/_error": "pages/_error.js",
-  "/404": "pages/404.html"
+  "/": "pages/index.js",
+  "/auth/login": "pages/auth/login.js"
 }

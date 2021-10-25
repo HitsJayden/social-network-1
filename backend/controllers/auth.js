@@ -278,9 +278,31 @@ exports.logout = async (req, res, next) => {
     req.session.destroy();
 
     // deleting tokens into cookies
-    res.status(200).clearCookie("connect.sid");
-    res.status(200).clearCookie("authCookie");
-    res.status(200).clearCookie("token");
+    res.status(200).clearCookie("connect.sid", {
+      maxAge: 3600000 * 24,
+      httpOnly: true,
+      secure: false,
+      domain: process.env.DOMAIN,
+    });
+    res.status(200).clearCookie("authCookie", {
+      maxAge: 3600000 * 24,
+      httpOnly: false,
+      path: "/",
+      domain: process.env.DOMAIN,
+    });
+    res.status(200).clearCookie("token", {
+      maxAge: 3600000 * 24,
+      httpOnly: true,
+      path: "/",
+      domain: process.env.DOMAIN,
+    });
+
+    res.status(200).clearCookie("userId", {
+      maxAge: 3600000 * 24,
+      httpOnly: false,
+      path: "/",
+      domain: process.env.DOMAIN,
+    });
 
     return res.status(200).json();
   } catch (err) {
